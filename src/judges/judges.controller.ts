@@ -16,4 +16,18 @@ export class JudgesController {
     if (!judge) throw new NotFoundException(`Juez con id ${id} no encontrado`);
     return judge;
   }
+
+  @Get(':id/casos')
+  getCasos(@Param('id', ParseIntPipe) id: number) {
+    const judge = this.judgesService.findOne(id);
+    if (!judge) throw new NotFoundException(`Juez con id ${id} no encontrado`);
+    return this.judgesService.getCasosByJudge(id);
+  }
+
+  @Get(':id/archivos')
+  getArchivos(@Param('id', ParseIntPipe) id: number) {
+    const judge = this.judgesService.findOne(id);
+    if (!judge) throw new NotFoundException(`Juez con id ${id} no encontrado`);
+    return this.judgesService.getArchivosByJudge(id);
+  }
 }

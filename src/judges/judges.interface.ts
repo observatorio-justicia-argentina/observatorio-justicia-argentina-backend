@@ -118,3 +118,23 @@ export interface JudgeWithStats extends Judge {
   totalFailures: number;
   failureRate: number;
 }
+
+export type ResultadoCaso = 'fta' | 'nuevo_arresto' | 'revocada' | 'pendiente';
+
+export interface Caso {
+  id: string;
+  judgeId: number;
+  nroExpediente: string;
+  fechaResolucion: string; // ISO date (YYYY-MM-DD)
+  tipoMedida: string;
+  resultado: ResultadoCaso;
+  observaciones?: string;
+}
+
+export interface ArchivoPublico {
+  id: string;
+  judgeId: number;
+  nombre: string;
+  url: string;
+  fechaCarga: string; // ISO date (YYYY-MM-DD)
+}
