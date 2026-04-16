@@ -13,10 +13,11 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 const COOKIE_NAME = 'oja_token';
+const isProd = process.env.NODE_ENV === 'production';
 const COOKIE_OPTIONS = (maxAge: number) => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  secure: isProd,
+  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
   maxAge,
   path: '/',
 });
