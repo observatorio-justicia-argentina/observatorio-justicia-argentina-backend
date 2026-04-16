@@ -5,14 +5,16 @@ import { AppModule } from './app.module';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-// Orígenes permitidos: localhost en dev + URL de Vercel en prod
-// Podés agregar más orígenes en FRONTEND_URLS separados por coma
+// Orígenes exactos permitidos
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://observatorio-justicia-argentina-fro.vercel.app',
   ...(process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',').map((u) => u.trim()) : []),
 ].filter(Boolean);
+
+// También se permite cualquier subdominio de vercel.app (preview deployments)
+const VERCEL_PATTERN = /^https:\/\/[a-zA-Z0-9-]+-[a-zA-Z0-9-]+\.vercel\.app$/;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +26,7 @@ async function bootstrap() {
       // Permite requests sin origin (Postman, curl, server-to-server)
       if (!origin) return callback(null, true);
       if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+      if (VERCEL_PATTERN.test(origin)) return callback(null, true);
       callback(new Error(`CORS bloqueado para origin: ${origin}`));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
