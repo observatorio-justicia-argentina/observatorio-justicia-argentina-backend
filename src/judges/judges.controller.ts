@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { JudgesService } from './judges.service';
 
 @Controller('judges')
@@ -18,10 +18,14 @@ export class JudgesController {
   }
 
   @Get(':id/casos')
-  getCasos(@Param('id', ParseIntPipe) id: number) {
+  getCasos(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ) {
     const judge = this.judgesService.findOne(id);
     if (!judge) throw new NotFoundException(`Juez con id ${id} no encontrado`);
-    return this.judgesService.getCasosByJudge(id);
+    return this.judgesService.getCasosByJudge(id, Number(page), Number(limit));
   }
 
   @Get(':id/archivos')

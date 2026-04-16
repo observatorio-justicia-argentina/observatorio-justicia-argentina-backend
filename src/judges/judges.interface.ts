@@ -119,6 +119,14 @@ export interface JudgeWithStats extends Judge {
   failureRate: number;
 }
 
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export type ResultadoCaso = 'fta' | 'nuevo_arresto' | 'revocada' | 'pendiente';
 
 export interface Caso {

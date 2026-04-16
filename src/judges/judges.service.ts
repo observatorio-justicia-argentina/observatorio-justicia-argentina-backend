@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ArchivoPublico, Caso, Judge, JudgeWithStats } from './judges.interface';
+import { ArchivoPublico, Caso, Judge, JudgeWithStats, PaginatedResult } from './judges.interface';
 
 /*
  * ─────────────────────────────────────────────────────────────────────────────
@@ -1282,8 +1282,13 @@ export class JudgesService {
     return MOCK_JUDGES;
   }
 
-  getCasosByJudge(judgeId: number): Caso[] {
-    return MOCK_CASOS.filter((c) => c.judgeId === judgeId);
+  getCasosByJudge(judgeId: number, page = 1, limit = 10): PaginatedResult<Caso> {
+    const all = MOCK_CASOS.filter((c) => c.judgeId === judgeId);
+    const total = all.length;
+    const totalPages = Math.ceil(total / limit);
+    const safePage = Math.min(Math.max(1, page), totalPages || 1);
+    const data = all.slice((safePage - 1) * limit, safePage * limit);
+    return { data, total, page: safePage, limit, totalPages };
   }
 
   getArchivosByJudge(judgeId: number): ArchivoPublico[] {
