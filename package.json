@@ -6,7 +6,19 @@
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "start": "ts-node src/main.ts",
     "build": "tsc -p tsconfig.json",
-    "start:prod": "node dist/main.js"
+    "start:prod": "node dist/main.js",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
