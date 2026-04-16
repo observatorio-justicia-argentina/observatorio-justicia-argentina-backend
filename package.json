@@ -4,7 +4,7 @@
   "description": "Backend del Observatorio Judicial Argentino",
   "scripts": {
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "start": "ts-node src/main.ts",
+    "start": "node dist/main.js",
     "build": "tsc -p tsconfig.json",
     "start:prod": "node dist/main.js",
     "lint": "eslint src/",
@@ -12,7 +12,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "node -e \"if(process.env.NODE_ENV!=='production'){require('child_process').execSync('husky',{stdio:'inherit'})}\""
   },
   "lint-staged": {
     "src/**/*.ts": [
