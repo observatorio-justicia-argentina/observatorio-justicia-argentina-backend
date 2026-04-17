@@ -10,13 +10,15 @@ export class JudgesController {
     return this.judgesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    const judge = this.judgesService.findOne(id);
-    if (!judge) throw new NotFoundException(`Juez con id ${id} no encontrado`);
+  /** Lookup por slug legible. Ej: GET /judges/juan-carlos-perez-gomez-caba */
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    const judge = this.judgesService.findBySlug(slug);
+    if (!judge) throw new NotFoundException(`Juez con slug "${slug}" no encontrado`);
     return judge;
   }
 
+  /** Casos paginados por ID numérico interno. Ej: GET /judges/1/casos */
   @Get(':id/casos')
   getCasos(
     @Param('id', ParseIntPipe) id: number,
@@ -28,6 +30,7 @@ export class JudgesController {
     return this.judgesService.getCasosByJudge(id, Number(page), Number(limit));
   }
 
+  /** Archivos públicos por ID numérico interno. Ej: GET /judges/1/archivos */
   @Get(':id/archivos')
   getArchivos(@Param('id', ParseIntPipe) id: number) {
     const judge = this.judgesService.findOne(id);

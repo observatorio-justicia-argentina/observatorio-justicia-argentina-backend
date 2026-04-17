@@ -1,6 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { ArchivoPublico, Caso, Judge, JudgeWithStats, PaginatedResult } from './judges.interface';
 
+/**
+ * Genera un slug URL-friendly a partir del nombre del juez y su provincia.
+ * Ej: ("Dr. Juan Carlos Pérez Gómez", "CABA") → "juan-carlos-perez-gomez-caba"
+ */
+export function generateSlug(name: string, province: string): string {
+  const normalize = (str: string) =>
+    str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // eliminar diacríticos
+      .toLowerCase()
+      .replace(/^(dr\.|dra\.)\s+/i, '') // quitar tratamiento
+      .replace(/[^a-z0-9\s]/g, '') // solo alfanumérico y espacios
+      .trim()
+      .replace(/\s+/g, '-'); // espacios → guiones
+  return `${normalize(name)}-${normalize(province)}`;
+}
+
 /*
  * ─────────────────────────────────────────────────────────────────────────────
  * DATOS DE PRUEBA — TODOS LOS PERFILES SON FICTICIOS
@@ -24,6 +41,7 @@ const MOCK_JUDGES: Judge[] = [
   // ══════════════════════════════════════════════════════════════════════════
   {
     id: 1,
+    slug: 'juan-carlos-perez-gomez-caba',
     isDemoData: true,
     name: 'Dr. Juan Carlos Pérez Gómez',
     court: 'Juzgado Nacional en lo Criminal y Correccional N° 7',
@@ -222,6 +240,7 @@ const MOCK_JUDGES: Judge[] = [
   // ══════════════════════════════════════════════════════════════════════════
   {
     id: 2,
+    slug: 'maria-elena-gutierrez-sosa-buenos-aires',
     isDemoData: true,
     name: 'Dra. María Elena Gutiérrez Sosa',
     court: 'Cámara de Apelación y Garantías en lo Penal — Depto. Judicial La Plata',
@@ -487,6 +506,7 @@ const MOCK_JUDGES: Judge[] = [
   // ══════════════════════════════════════════════════════════════════════════
   {
     id: 3,
+    slug: 'roberto-ernesto-molina-paz-cordoba',
     isDemoData: true,
     name: 'Dr. Roberto Ernesto Molina Paz',
     court: 'Juzgado Federal en lo Criminal y Correccional N° 2 de Córdoba',
@@ -1276,6 +1296,10 @@ export class JudgesService {
 
   findOne(id: number): JudgeWithStats | undefined {
     return this.findAll().find((j) => j.id === id);
+  }
+
+  findBySlug(slug: string): JudgeWithStats | undefined {
+    return this.findAll().find((j) => j.slug === slug);
   }
 
   getRawData(): Judge[] {

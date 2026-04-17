@@ -89,6 +89,7 @@ export interface JudgeExtendedStats {
 
 export interface Judge {
   id: number;
+  slug: string;
   isDemoData: boolean;
   name: string;
   court: string;
