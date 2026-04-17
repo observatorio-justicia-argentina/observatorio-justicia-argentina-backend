@@ -1,5 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Judge, JudgeWithStats } from './judges.interface';
+import { ArchivoPublico, Caso, Judge, JudgeWithStats, PaginatedResult } from './judges.interface';
+
+/**
+ * Genera un slug URL-friendly a partir del nombre del juez y su provincia.
+ * Ej: ("Dr. Juan Carlos Pérez Gómez", "CABA") → "juan-carlos-perez-gomez-caba"
+ */
+export function generateSlug(name: string, province: string): string {
+  const normalize = (str: string) =>
+    str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // eliminar diacríticos
+      .toLowerCase()
+      .replace(/^(dr\.|dra\.)\s+/i, '') // quitar tratamiento
+      .replace(/[^a-z0-9\s]/g, '') // solo alfanumérico y espacios
+      .trim()
+      .replace(/\s+/g, '-'); // espacios → guiones
+  return `${normalize(name)}-${normalize(province)}`;
+}
 
 /*
  * ─────────────────────────────────────────────────────────────────────────────
@@ -19,12 +36,12 @@ import { Judge, JudgeWithStats } from './judges.interface';
  */
 
 const MOCK_JUDGES: Judge[] = [
-
   // ══════════════════════════════════════════════════════════════════════════
   // JUEZ 1 — CABA · Primera instancia · Nacional · Ordinaria
   // ══════════════════════════════════════════════════════════════════════════
   {
     id: 1,
+    slug: 'juan-carlos-perez-gomez-caba',
     isDemoData: true,
     name: 'Dr. Juan Carlos Pérez Gómez',
     court: 'Juzgado Nacional en lo Criminal y Correccional N° 7',
@@ -48,8 +65,7 @@ const MOCK_JUDGES: Judge[] = [
       lastUpdated: 'diciembre 2024',
     },
     appointmentDate: '15 de marzo de 2018',
-    appointmentBody:
-      'Consejo de la Magistratura de la Nación — Decreto PEN N° 512/2018',
+    appointmentBody: 'Consejo de la Magistratura de la Nación — Decreto PEN N° 512/2018',
     yearsOnBench: 7,
     totalReleases: 491,
     ftaCount: 67,
@@ -139,7 +155,8 @@ const MOCK_JUDGES: Judge[] = [
         crimeArticle: 'Art. 84 bis CP (Ley 27.347)',
         decisionType: 'Exención de prisión bajo caución real',
         decisionDate: '2024-02-19',
-        legalBasis: 'Art. 316 CPPN — delito culposo sin antecedentes; domicilio y trabajo acreditados',
+        legalBasis:
+          'Art. 316 CPPN — delito culposo sin antecedentes; domicilio y trabajo acreditados',
         outcome: 'ongoing',
         outcomeDetail: 'Investigación en trámite. Pericia accidentológica pendiente.',
       },
@@ -150,11 +167,11 @@ const MOCK_JUDGES: Judge[] = [
         crimeArticle: 'Art. 119, 3° párr. CP',
         decisionType: 'Excarcelación bajo caución real',
         decisionDate: '2021-07-30',
-        legalBasis: 'Art. 317 CPPN — tiempo de detención preventiva excede el mínimo de la escala penal',
+        legalBasis:
+          'Art. 317 CPPN — tiempo de detención preventiva excede el mínimo de la escala penal',
         outcome: 'revoked',
         outcomeDate: '2021-10-14',
-        outcomeDetail:
-          'Libertad revocada al constatarse contacto no autorizado con la víctima.',
+        outcomeDetail: 'Libertad revocada al constatarse contacto no autorizado con la víctima.',
       },
       {
         expediente: '52789/2022',
@@ -191,7 +208,8 @@ const MOCK_JUDGES: Judge[] = [
       {
         label: 'Consejo de la Magistratura — Legajo del magistrado',
         url: 'https://www.magistratura.gov.ar/magistrados/legajo',
-        description: 'Legajo público: concurso de designación, antecedentes disciplinarios y DJ patrimonial.',
+        description:
+          'Legajo público: concurso de designación, antecedentes disciplinarios y DJ patrimonial.',
       },
       {
         label: 'CSJN — Acordadas de remuneraciones',
@@ -201,7 +219,8 @@ const MOCK_JUDGES: Judge[] = [
       {
         label: 'Ministerio Público Fiscal — Resoluciones',
         url: 'https://www.mpf.gov.ar/resoluciones',
-        description: 'Resoluciones del MPF. Complementa el seguimiento con la posición del acusador.',
+        description:
+          'Resoluciones del MPF. Complementa el seguimiento con la posición del acusador.',
       },
       {
         label: 'Oficina Anticorrupción — Declaraciones Juradas',
@@ -221,6 +240,7 @@ const MOCK_JUDGES: Judge[] = [
   // ══════════════════════════════════════════════════════════════════════════
   {
     id: 2,
+    slug: 'maria-elena-gutierrez-sosa-buenos-aires',
     isDemoData: true,
     name: 'Dra. María Elena Gutiérrez Sosa',
     court: 'Cámara de Apelación y Garantías en lo Penal — Depto. Judicial La Plata',
@@ -235,8 +255,7 @@ const MOCK_JUDGES: Judge[] = [
       scope: 'Provincial',
       competence: 'Ordinaria',
     },
-    workAddress:
-      'Calle 13 N° 820, Piso 4, Sala II — La Plata, Buenos Aires, CP B1900TLH',
+    workAddress: 'Calle 13 N° 820, Piso 4, Sala II — La Plata, Buenos Aires, CP B1900TLH',
     workHours: 'Lunes a viernes de 08:00 a 14:00 hs. (Acordada SCBA N° 3845/2019)',
     salary: {
       grossMonthlyARS: 12_400_000,
@@ -275,7 +294,8 @@ const MOCK_JUDGES: Judge[] = [
       },
       {
         degree: 'Diploma en Derechos Humanos y Proceso Penal',
-        institution: 'ILANUD — Instituto Latinoamericano de Naciones Unidas para la Prevención del Delito',
+        institution:
+          'ILANUD — Instituto Latinoamericano de Naciones Unidas para la Prevención del Delito',
         year: 2007,
       },
     ],
@@ -328,8 +348,7 @@ const MOCK_JUDGES: Judge[] = [
           'Declaró la inconstitucionalidad de la detención preventiva automática ' +
           'en causa de reincidencia simple, por exceder el estándar de proporcionalidad.',
         article: 'Art. 170 CPPPBA · Art. 18 CN · Doctrina CIDH',
-        outcome:
-          'Resolución recurrida por la Fiscalía. La SCBA confirmó el criterio de la Cámara.',
+        outcome: 'Resolución recurrida por la Fiscalía. La SCBA confirmó el criterio de la Cámara.',
       },
     ],
 
@@ -487,6 +506,7 @@ const MOCK_JUDGES: Judge[] = [
   // ══════════════════════════════════════════════════════════════════════════
   {
     id: 3,
+    slug: 'roberto-ernesto-molina-paz-cordoba',
     isDemoData: true,
     name: 'Dr. Roberto Ernesto Molina Paz',
     court: 'Juzgado Federal en lo Criminal y Correccional N° 2 de Córdoba',
@@ -501,8 +521,7 @@ const MOCK_JUDGES: Judge[] = [
       scope: 'Federal',
       competence: 'Federal',
     },
-    workAddress:
-      'Av. General Paz 102, Piso 5, Of. 512 — Córdoba Capital, CP X5000IYN',
+    workAddress: 'Av. General Paz 102, Piso 5, Of. 512 — Córdoba Capital, CP X5000IYN',
     workHours: 'Lunes a viernes de 07:30 a 13:30 hs. (Acordada CSJN N° 4/2007)',
     salary: {
       grossMonthlyARS: 8_650_000,
@@ -511,8 +530,7 @@ const MOCK_JUDGES: Judge[] = [
       lastUpdated: 'diciembre 2024',
     },
     appointmentDate: '22 de septiembre de 2020',
-    appointmentBody:
-      'Consejo de la Magistratura de la Nación — Decreto PEN N° 884/2020',
+    appointmentBody: 'Consejo de la Magistratura de la Nación — Decreto PEN N° 884/2020',
     yearsOnBench: 5,
     totalReleases: 213,
     ftaCount: 19,
@@ -658,7 +676,8 @@ const MOCK_JUDGES: Judge[] = [
         crimeArticle: 'Art. 865 inc. b) Código Aduanero (Ley 22.415)',
         decisionType: 'Excarcelación bajo caución personal juratoria',
         decisionDate: '2022-03-25',
-        legalBasis: 'Art. 210 CPPF — monto de la pena en expectativa no excede el umbral de cautelar',
+        legalBasis:
+          'Art. 210 CPPF — monto de la pena en expectativa no excede el umbral de cautelar',
         outcome: 'ongoing',
         outcomeDetail: 'Causa en etapa de juicio. Debate oral fijado para 2025.',
       },
@@ -720,7 +739,8 @@ const MOCK_JUDGES: Judge[] = [
         crimeArticle: 'Art. 2 Ley 24.769 (Régimen Penal Tributario)',
         decisionType: 'Exención de prisión bajo caución real',
         decisionDate: '2019-09-30',
-        legalBasis: 'Art. 316 CPPN (vigente en ese momento) — monto de evasión acreditado; arraigo suficiente',
+        legalBasis:
+          'Art. 316 CPPN (vigente en ese momento) — monto de evasión acreditado; arraigo suficiente',
         outcome: 'fta',
         outcomeDate: '2020-04-17',
         outcomeDetail:
@@ -733,7 +753,8 @@ const MOCK_JUDGES: Judge[] = [
       {
         label: 'PJN — Expedientes Federales de Córdoba',
         url: 'https://www.pjn.gov.ar/judiciales/expedientes',
-        description: 'Sistema de gestión judicial. Consulta de causas federales por número de expediente.',
+        description:
+          'Sistema de gestión judicial. Consulta de causas federales por número de expediente.',
       },
       {
         label: 'Consejo de la Magistratura — Legajo del magistrado',
@@ -748,7 +769,8 @@ const MOCK_JUDGES: Judge[] = [
       {
         label: 'UIF — Unidad de Información Financiera',
         url: 'https://www.argentina.gob.ar/uif',
-        description: 'Reportes de operaciones sospechosas y resoluciones en causas de lavado de activos.',
+        description:
+          'Reportes de operaciones sospechosas y resoluciones en causas de lavado de activos.',
       },
       {
         label: 'AFIP — PROCELAC (Procuraduría de Criminalidad Económica)',
@@ -758,9 +780,504 @@ const MOCK_JUDGES: Judge[] = [
       {
         label: 'SAIJ — Legislación y jurisprudencia federal',
         url: 'https://www.saij.gob.ar',
-        description: 'Sistema Argentino de Información Jurídica. Base normativa y jurisprudencial oficial.',
+        description:
+          'Sistema Argentino de Información Jurídica. Base normativa y jurisprudencial oficial.',
       },
     ],
+  },
+];
+
+const MOCK_CASOS: Caso[] = [
+  // ── Juez 1: García Morales (CABA) ────────────────────────────────────────
+  {
+    id: 'c-101',
+    judgeId: 1,
+    nroExpediente: '98432/2023',
+    fechaResolucion: '2023-08-14',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Reaprehendido el 02/10/2023 por robo agravado en San Telmo.',
+  },
+  {
+    id: 'c-102',
+    judgeId: 1,
+    nroExpediente: '12987/2023',
+    fechaResolucion: '2023-11-03',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+    observaciones: 'No se presentó a la audiencia del 15/12/2023.',
+  },
+  {
+    id: 'c-103',
+    judgeId: 1,
+    nroExpediente: '45621/2024',
+    fechaResolucion: '2024-02-20',
+    tipoMedida: 'Prisión preventiva atenuada',
+    resultado: 'revocada',
+    observaciones: 'La Cámara revocó por incumplimiento de reglas de conducta.',
+  },
+  {
+    id: 'c-104',
+    judgeId: 1,
+    nroExpediente: '67890/2024',
+    fechaResolucion: '2024-05-10',
+    tipoMedida: 'Libertad bajo caución real',
+    resultado: 'pendiente',
+  },
+  // ── Jueza 2: Vidal Suárez (CABA) ─────────────────────────────────────────
+  {
+    id: 'c-201',
+    judgeId: 2,
+    nroExpediente: '33210/2023',
+    fechaResolucion: '2023-07-22',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+    observaciones: 'Paradero desconocido desde agosto de 2023.',
+  },
+  {
+    id: 'c-202',
+    judgeId: 2,
+    nroExpediente: '54871/2023',
+    fechaResolucion: '2023-12-01',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Detenido nuevamente el 18/01/2024 por tentativa de homicidio.',
+  },
+  {
+    id: 'c-203',
+    judgeId: 2,
+    nroExpediente: '11023/2024',
+    fechaResolucion: '2024-03-15',
+    tipoMedida: 'Arresto domiciliario',
+    resultado: 'pendiente',
+  },
+  // ── Juez 3: Espinoza Leal (CABA) ─────────────────────────────────────────
+  {
+    id: 'c-301',
+    judgeId: 3,
+    nroExpediente: '78123/2022',
+    fechaResolucion: '2022-09-05',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Detenido por segundo hecho el 22/10/2022 en Palermo.',
+  },
+  {
+    id: 'c-302',
+    judgeId: 3,
+    nroExpediente: '90045/2022',
+    fechaResolucion: '2022-11-18',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+  },
+  {
+    id: 'c-303',
+    judgeId: 3,
+    nroExpediente: '14532/2023',
+    fechaResolucion: '2023-04-07',
+    tipoMedida: 'Libertad bajo caución juratoria',
+    resultado: 'revocada',
+    observaciones: 'Revocada por reiteración delictiva comprobada.',
+  },
+  {
+    id: 'c-304',
+    judgeId: 3,
+    nroExpediente: '62791/2023',
+    fechaResolucion: '2023-09-30',
+    tipoMedida: 'Prisión preventiva atenuada',
+    resultado: 'nuevo_arresto',
+  },
+  {
+    id: 'c-305',
+    judgeId: 3,
+    nroExpediente: '29841/2024',
+    fechaResolucion: '2024-01-22',
+    tipoMedida: 'Excarcelación',
+    resultado: 'pendiente',
+  },
+  // ── Jueza 4: Castro Ruiz (CABA) ───────────────────────────────────────────
+  {
+    id: 'c-401',
+    judgeId: 4,
+    nroExpediente: '43219/2023',
+    fechaResolucion: '2023-06-14',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+    observaciones: 'Incomparecencia a audiencia de control del 20/07/2023.',
+  },
+  {
+    id: 'c-402',
+    judgeId: 4,
+    nroExpediente: '87654/2023',
+    fechaResolucion: '2023-10-28',
+    tipoMedida: 'Excarcelación',
+    resultado: 'pendiente',
+  },
+  {
+    id: 'c-403',
+    judgeId: 4,
+    nroExpediente: '55320/2024',
+    fechaResolucion: '2024-04-03',
+    tipoMedida: 'Arresto domiciliario',
+    resultado: 'revocada',
+    observaciones: 'Quebrantó condiciones del arresto domiciliario.',
+  },
+  // ── Juez 5: Torres Ibáñez (BA - La Matanza) ───────────────────────────────
+  {
+    id: 'c-501',
+    judgeId: 5,
+    nroExpediente: '31456/2022',
+    fechaResolucion: '2022-10-11',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Nuevo hecho delictivo el 05/11/2022.',
+  },
+  {
+    id: 'c-502',
+    judgeId: 5,
+    nroExpediente: '79023/2023',
+    fechaResolucion: '2023-03-20',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+  },
+  {
+    id: 'c-503',
+    judgeId: 5,
+    nroExpediente: '15678/2023',
+    fechaResolucion: '2023-08-09',
+    tipoMedida: 'Libertad bajo caución real',
+    resultado: 'revocada',
+  },
+  {
+    id: 'c-504',
+    judgeId: 5,
+    nroExpediente: '48921/2024',
+    fechaResolucion: '2024-02-14',
+    tipoMedida: 'Prisión preventiva atenuada',
+    resultado: 'pendiente',
+  },
+  // ── Jueza 6: González Ruiz (BA - La Matanza) ──────────────────────────────
+  {
+    id: 'c-601',
+    judgeId: 6,
+    nroExpediente: '22134/2022',
+    fechaResolucion: '2022-08-30',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Arrestado por robo calificado el 14/09/2022.',
+  },
+  {
+    id: 'c-602',
+    judgeId: 6,
+    nroExpediente: '66543/2022',
+    fechaResolucion: '2022-12-15',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+    observaciones: 'Sin noticias del imputado desde enero 2023.',
+  },
+  {
+    id: 'c-603',
+    judgeId: 6,
+    nroExpediente: '10982/2023',
+    fechaResolucion: '2023-05-04',
+    tipoMedida: 'Libertad bajo caución juratoria',
+    resultado: 'revocada',
+  },
+  {
+    id: 'c-604',
+    judgeId: 6,
+    nroExpediente: '39871/2024',
+    fechaResolucion: '2024-03-28',
+    tipoMedida: 'Arresto domiciliario',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Quebrantó el arresto y cometió nuevo delito.',
+  },
+  // ── Jueza 7: Pereyra Blanco (BA - La Plata) ───────────────────────────────
+  {
+    id: 'c-701',
+    judgeId: 7,
+    nroExpediente: '57831/2023',
+    fechaResolucion: '2023-02-17',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+    observaciones: 'No compareció al control mensual del 17/03/2023.',
+  },
+  {
+    id: 'c-702',
+    judgeId: 7,
+    nroExpediente: '84290/2023',
+    fechaResolucion: '2023-09-22',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+  },
+  {
+    id: 'c-703',
+    judgeId: 7,
+    nroExpediente: '27654/2024',
+    fechaResolucion: '2024-01-08',
+    tipoMedida: 'Prisión preventiva atenuada',
+    resultado: 'pendiente',
+  },
+  // ── Juez 8: Méndez Vega (BA - La Plata) ──────────────────────────────────
+  {
+    id: 'c-801',
+    judgeId: 8,
+    nroExpediente: '19023/2023',
+    fechaResolucion: '2023-04-14',
+    tipoMedida: 'Excarcelación',
+    resultado: 'revocada',
+    observaciones: 'Revocada por la Cámara ante reiteración delictiva.',
+  },
+  {
+    id: 'c-802',
+    judgeId: 8,
+    nroExpediente: '63410/2023',
+    fechaResolucion: '2023-10-30',
+    tipoMedida: 'Libertad bajo caución real',
+    resultado: 'fta',
+  },
+  {
+    id: 'c-803',
+    judgeId: 8,
+    nroExpediente: '41287/2024',
+    fechaResolucion: '2024-04-19',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'pendiente',
+  },
+  // ── Jueza 9: Fernández Ríos (Córdoba) ────────────────────────────────────
+  {
+    id: 'c-901',
+    judgeId: 9,
+    nroExpediente: '72341/2023',
+    fechaResolucion: '2023-05-08',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+  },
+  {
+    id: 'c-902',
+    judgeId: 9,
+    nroExpediente: '35912/2023',
+    fechaResolucion: '2023-11-14',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Detenido por hecho independiente el 09/12/2023.',
+  },
+  {
+    id: 'c-903',
+    judgeId: 9,
+    nroExpediente: '88124/2024',
+    fechaResolucion: '2024-03-07',
+    tipoMedida: 'Prisión preventiva atenuada',
+    resultado: 'pendiente',
+  },
+  // ── Jueza 10: Ramos Prieto (Córdoba) ─────────────────────────────────────
+  {
+    id: 'c-1001',
+    judgeId: 10,
+    nroExpediente: '29087/2023',
+    fechaResolucion: '2023-06-19',
+    tipoMedida: 'Libertad bajo caución juratoria',
+    resultado: 'fta',
+    observaciones: 'Incomparecencia sin justificación.',
+  },
+  {
+    id: 'c-1002',
+    judgeId: 10,
+    nroExpediente: '51340/2023',
+    fechaResolucion: '2023-12-05',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+  },
+  {
+    id: 'c-1003',
+    judgeId: 10,
+    nroExpediente: '17623/2024',
+    fechaResolucion: '2024-02-28',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'pendiente',
+  },
+  // ── Juez 11: Herrera Montoya (Santa Fe - Rosario) ─────────────────────────
+  {
+    id: 'c-1101',
+    judgeId: 11,
+    nroExpediente: '84561/2022',
+    fechaResolucion: '2022-07-22',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+    observaciones: 'Nuevo hecho el 08/08/2022 en zona norte de Rosario.',
+  },
+  {
+    id: 'c-1102',
+    judgeId: 11,
+    nroExpediente: '43219/2022',
+    fechaResolucion: '2022-11-10',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+  },
+  {
+    id: 'c-1103',
+    judgeId: 11,
+    nroExpediente: '19034/2023',
+    fechaResolucion: '2023-04-25',
+    tipoMedida: 'Libertad bajo caución real',
+    resultado: 'revocada',
+    observaciones: 'La Sala revocó la medida por inconducta procesal reiterada.',
+  },
+  {
+    id: 'c-1104',
+    judgeId: 11,
+    nroExpediente: '67821/2023',
+    fechaResolucion: '2023-09-03',
+    tipoMedida: 'Arresto domiciliario',
+    resultado: 'nuevo_arresto',
+  },
+  {
+    id: 'c-1105',
+    judgeId: 11,
+    nroExpediente: '32456/2024',
+    fechaResolucion: '2024-01-15',
+    tipoMedida: 'Excarcelación',
+    resultado: 'pendiente',
+  },
+  // ── Juez 12: Molina Sosa (Santa Fe - Rosario) ─────────────────────────────
+  {
+    id: 'c-1201',
+    judgeId: 12,
+    nroExpediente: '91230/2023',
+    fechaResolucion: '2023-03-11',
+    tipoMedida: 'Libertad cautelar',
+    resultado: 'fta',
+    observaciones: 'Incomparecencia a audiencia del 14/04/2023.',
+  },
+  {
+    id: 'c-1202',
+    judgeId: 12,
+    nroExpediente: '58743/2023',
+    fechaResolucion: '2023-08-29',
+    tipoMedida: 'Excarcelación',
+    resultado: 'nuevo_arresto',
+  },
+  {
+    id: 'c-1203',
+    judgeId: 12,
+    nroExpediente: '24891/2024',
+    fechaResolucion: '2024-04-10',
+    tipoMedida: 'Arresto domiciliario',
+    resultado: 'pendiente',
+  },
+];
+
+const MOCK_ARCHIVOS: ArchivoPublico[] = [
+  {
+    id: 'a-101',
+    judgeId: 1,
+    nombre: 'Resolución excarcelación 98432-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-08-20',
+  },
+  {
+    id: 'a-102',
+    judgeId: 1,
+    nombre: 'Acta audiencia 12987-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-11-10',
+  },
+  {
+    id: 'a-201',
+    judgeId: 2,
+    nombre: 'Resolución libertad cautelar 33210-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-07-28',
+  },
+  {
+    id: 'a-301',
+    judgeId: 3,
+    nombre: 'Resolución excarcelación 78123-2022.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2022-09-12',
+  },
+  {
+    id: 'a-302',
+    judgeId: 3,
+    nombre: 'Dictamen fiscal 90045-2022.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2022-11-25',
+  },
+  {
+    id: 'a-401',
+    judgeId: 4,
+    nombre: 'Acta audiencia 43219-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-06-20',
+  },
+  {
+    id: 'a-501',
+    judgeId: 5,
+    nombre: 'Resolución excarcelación 31456-2022.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2022-10-18',
+  },
+  {
+    id: 'a-601',
+    judgeId: 6,
+    nombre: 'Resolución excarcelación 22134-2022.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2022-09-05',
+  },
+  {
+    id: 'a-602',
+    judgeId: 6,
+    nombre: 'Informe de incomparecencia 66543-2022.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-01-08',
+  },
+  {
+    id: 'a-701',
+    judgeId: 7,
+    nombre: 'Acta audiencia 57831-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-02-24',
+  },
+  {
+    id: 'a-801',
+    judgeId: 8,
+    nombre: 'Resolución revocatoria 19023-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-04-20',
+  },
+  {
+    id: 'a-901',
+    judgeId: 9,
+    nombre: 'Acta de incomparecencia 72341-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-05-15',
+  },
+  {
+    id: 'a-1001',
+    judgeId: 10,
+    nombre: 'Resolución excarcelación 29087-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-06-25',
+  },
+  {
+    id: 'a-1101',
+    judgeId: 11,
+    nombre: 'Resolución excarcelación 84561-2022.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2022-07-28',
+  },
+  {
+    id: 'a-1102',
+    judgeId: 11,
+    nombre: 'Resolución revocatoria 19034-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-05-02',
+  },
+  {
+    id: 'a-1201',
+    judgeId: 12,
+    nombre: 'Acta de incomparecencia 91230-2023.pdf',
+    url: 'https://www.boletinoficial.gob.ar/',
+    fechaCarga: '2023-03-18',
   },
 ];
 
@@ -781,7 +1298,24 @@ export class JudgesService {
     return this.findAll().find((j) => j.id === id);
   }
 
+  findBySlug(slug: string): JudgeWithStats | undefined {
+    return this.findAll().find((j) => j.slug === slug);
+  }
+
   getRawData(): Judge[] {
     return MOCK_JUDGES;
+  }
+
+  getCasosByJudge(judgeId: number, page = 1, limit = 10): PaginatedResult<Caso> {
+    const all = MOCK_CASOS.filter((c) => c.judgeId === judgeId);
+    const total = all.length;
+    const totalPages = Math.ceil(total / limit);
+    const safePage = Math.min(Math.max(1, page), totalPages || 1);
+    const data = all.slice((safePage - 1) * limit, safePage * limit);
+    return { data, total, page: safePage, limit, totalPages };
+  }
+
+  getArchivosByJudge(judgeId: number): ArchivoPublico[] {
+    return MOCK_ARCHIVOS.filter((a) => a.judgeId === judgeId);
   }
 }
