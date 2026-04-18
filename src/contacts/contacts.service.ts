@@ -15,9 +15,7 @@ export class ContactsService {
     rol: string;
     password: string;
   }): Promise<ContactPublic> {
-    const existing = this.store.find(
-      (c) => c.email.toLowerCase() === data.email.toLowerCase(),
-    );
+    const existing = this.store.find((c) => c.email.toLowerCase() === data.email.toLowerCase());
     if (existing) {
       throw new ConflictException('Ya existe un contacto registrado con ese email');
     }
@@ -40,14 +38,13 @@ export class ContactsService {
     };
 
     this.store.push(contact);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...pub } = contact;
     return pub;
   }
 
   async validatePassword(email: string, password: string): Promise<Contact | null> {
-    const contact = this.store.find(
-      (c) => c.email.toLowerCase() === email.toLowerCase(),
-    );
+    const contact = this.store.find((c) => c.email.toLowerCase() === email.toLowerCase());
     if (!contact) return null;
     const ok = await bcrypt.compare(password, contact.passwordHash);
     return ok ? contact : null;
@@ -60,6 +57,7 @@ export class ContactsService {
   findById(id: string): ContactPublic | undefined {
     const c = this.store.find((c) => c.id === id);
     if (!c) return undefined;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...pub } = c;
     return pub;
   }

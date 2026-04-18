@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ContactsService } from '../contacts/contacts.service';
 import { ContactPublic } from '../contacts/contacts.interface';
@@ -35,6 +35,7 @@ export class AuthService {
     if (!contact) {
       throw new UnauthorizedException('Email o contraseña incorrectos');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...user } = contact;
     return { user, token: this.sign(user), cookieMaxAge: COOKIE_MAX_AGE };
   }

@@ -11,6 +11,7 @@ import {
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Contact } from 'src/contacts/contacts.interface';
 
 const COOKIE_NAME = 'oja_token';
 const isProd = process.env.NODE_ENV === 'production';
@@ -29,7 +30,8 @@ export class AuthController {
   /** POST /api/auth/register */
   @Post('register')
   async register(
-    @Body() body: {
+    @Body()
+    body: {
       nombre?: string;
       email?: string;
       dni?: string;
@@ -69,7 +71,7 @@ export class AuthController {
   /** GET /api/auth/me — requiere JWT */
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@Req() req: Request & { user: any }) {
+  me(@Req() req: Request & { user: Contact }) {
     return req.user;
   }
 
