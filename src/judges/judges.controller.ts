@@ -80,4 +80,13 @@ export class JudgesController {
   getCausasRanking(@Param('slug') slug: string) {
     return this.judgesService.getCausasRankingByJudge(slug);
   }
+
+  /**
+   * Ranking de causas por tiempo de demora, filtrado al juez.
+   * Ej: GET /judges/juan-carlos-perez-gomez-caba/causas-ranking
+   */
+  @Get(':slug/causas-ranking')
+  getCausasRanking(@Param('slug') slug: string) {
+    return this.judgesService.getCausasRankingByJudge(slug);
+  }
 }
