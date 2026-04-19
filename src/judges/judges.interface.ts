@@ -79,6 +79,8 @@ export interface JudgeAppointmentDetail {
   politicalOrigin: PoliticalOrigin;
   /** Descripción textual del contexto de designación */
   politicalOriginDetail?: string;
+  /** Fuentes documentales del origen de la designación (lista con links) */
+  politicalOriginSources?: { label: string; url: string }[];
   /** Puntaje obtenido en el concurso del Consejo de la Magistratura */
   magistraturaScore?: number;
   /** Puesto en el orden de mérito (1 = primero) */

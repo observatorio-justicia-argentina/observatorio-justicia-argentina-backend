@@ -254,9 +254,21 @@ const MOCK_JUDGES: Judge[] = [
     appointmentDetail: {
       politicalOrigin: 'judicial',
       politicalOriginDetail:
-        'Trayectoria judicial ascendente: ingresó al fuero como empleado en 2001, ' +
-        'accedió a la secretaría en 2009 y concursó para juez en 2017. ' +
-        'Sin antecedentes de militancia política partidaria registrada. (FICTICIO)',
+        'Trayectoria judicial ascendente sin antecedentes de militancia política partidaria registrada. (FICTICIO)',
+      politicalOriginSources: [
+        {
+          label: 'Ingresó al fuero como empleado judicial (2001)',
+          url: 'https://www.pjn.gov.ar/registros/empleados (FICTICIO)',
+        },
+        {
+          label: 'Accedió a la secretaría por concurso interno (2009)',
+          url: 'https://www.pjn.gov.ar/secretarios/concurso-2009 (FICTICIO)',
+        },
+        {
+          label: 'Concursó para juez — Concurso N° 312 del Consejo de la Magistratura (2017)',
+          url: 'https://www.magistratura.gov.ar/concursos/312 (FICTICIO)',
+        },
+      ],
       magistraturaScore: 78.4,
       magistraturaRank: 2,
       magistraturaCompetitionId:
@@ -552,10 +564,25 @@ const MOCK_JUDGES: Judge[] = [
     appointmentDetail: {
       politicalOrigin: 'mixed',
       politicalOriginDetail:
-        'Docente universitaria en derecho penal (UBA y UNLP) desde 2001. ' +
-        'Ingresó al Poder Judicial bonaerense como defensora en 2006. ' +
-        'Su designación en Cámara fue impulsada por el bloque del FPV en la legislatura provincial ' +
-        'durante la gestión Kicillof. Figura en el acta fundacional de Justicia Legítima (2012). (FICTICIO)',
+        'Docente universitaria con carrera judicial propia, pero con aval político explícito del FPV en su designación en Cámara. (FICTICIO)',
+      politicalOriginSources: [
+        {
+          label: 'Docente de derecho penal en UBA y UNLP desde 2001 (FICTICIO)',
+          url: 'https://www.derecho.uba.ar/docentes (FICTICIO)',
+        },
+        {
+          label: 'Ingresó al PJ bonaerense como defensora pública (2006) (FICTICIO)',
+          url: 'https://www.mpba.gov.ar/defensores (FICTICIO)',
+        },
+        {
+          label: 'Figura en el acta fundacional de Justicia Legítima (2012) (FICTICIO)',
+          url: 'https://www.justicia-legitima.org.ar/firmantes (FICTICIO)',
+        },
+        {
+          label: 'Designación impulsada por el bloque FPV — Legislatura de Buenos Aires (FICTICIO)',
+          url: 'https://www.hcdiputados-ba.gov.ar/sesiones/2015 (FICTICIO)',
+        },
+      ],
       magistraturaScore: 84.1,
       magistraturaRank: 1,
       magistraturaCompetitionId: 'Concurso CMCPBA N° 88 — Cámara Penal La Plata (FICTICIO)',
@@ -826,10 +853,21 @@ const MOCK_JUDGES: Judge[] = [
     appointmentDetail: {
       politicalOrigin: 'political',
       politicalOriginDetail:
-        'Ejerció la abogacía privada en Córdoba durante 15 años antes de su designación. ' +
-        'Sin trayectoria previa en el Poder Judicial ni en el Ministerio Público. ' +
-        'Su pliego fue impulsado por senadores del PJ cordobés con estrecho vínculo ' +
-        'con el gobierno provincial. No registra antecedentes académicos de relevancia. (FICTICIO)',
+        'Sin trayectoria previa en el Poder Judicial. Abogado privado cuyo pliego fue impulsado por senadores del PJ cordobés. (FICTICIO)',
+      politicalOriginSources: [
+        {
+          label: 'Abogacía privada en Córdoba — sin cargo judicial previo (2005–2020) (FICTICIO)',
+          url: 'https://www.colegiodabogados-cba.org.ar/matriculados (FICTICIO)',
+        },
+        {
+          label: 'Pliego impulsado por Sen. Rodríguez Saá y Sen. Corpacci — PJ cordobés (FICTICIO)',
+          url: 'https://www.senado.gob.ar/parlamentario/plenarios/2020-08-19 (FICTICIO)',
+        },
+        {
+          label: 'Decreto PEN N° 884/2020 — Designación en Juzgado Federal de Córdoba (FICTICIO)',
+          url: 'https://www.boletinoficial.gov.ar/detalleAviso/primera/235678/20200922 (FICTICIO)',
+        },
+      ],
       magistraturaScore: 61.7,
       magistraturaRank: 3,
       magistraturaCompetitionId: 'Concurso N° 198 — Juzgado Federal Penal Córdoba (FICTICIO)',
