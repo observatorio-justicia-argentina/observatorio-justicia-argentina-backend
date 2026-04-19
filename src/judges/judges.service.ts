@@ -835,7 +835,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-104',
     judgeId: 1,
     nroExpediente: '67890/2022',
-    fechaInicio: '2022-08-10', // > 730 días → cajoneada
+    fechaInicio: '2022-08-10', // > 730 días → alta-demora
     tipoMedida: 'Libertad bajo caución real',
     delito: 'Portación ilegal de arma de fuego',
     resultado: 'pendiente',
@@ -867,7 +867,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-203',
     judgeId: 2,
     nroExpediente: '11023/2024',
-    fechaInicio: '2024-09-15', // 365–730 días → demorada
+    fechaInicio: '2024-09-15', // 365–730 días → demora-moderada
     tipoMedida: 'Arresto domiciliario',
     delito: 'Amenazas calificadas',
     resultado: 'pendiente',
@@ -940,7 +940,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-402',
     judgeId: 4,
     nroExpediente: '87654/2021',
-    fechaInicio: '2021-11-10', // > 730 días → cajoneada
+    fechaInicio: '2021-11-10', // > 730 días → alta-demora
     tipoMedida: 'Excarcelación',
     delito: 'Daño agravado',
     resultado: 'pendiente',
@@ -992,7 +992,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-504',
     judgeId: 5,
     nroExpediente: '48921/2024',
-    fechaInicio: '2024-11-08', // 365–730 días → demorada
+    fechaInicio: '2024-11-08', // 365–730 días → demora-moderada
     tipoMedida: 'Prisión preventiva atenuada',
     delito: 'Violación de domicilio',
     resultado: 'pendiente',
@@ -1067,7 +1067,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-703',
     judgeId: 7,
     nroExpediente: '27654/2023',
-    fechaInicio: '2023-06-20', // > 730 días → cajoneada
+    fechaInicio: '2023-06-20', // > 730 días → alta-demora
     tipoMedida: 'Prisión preventiva atenuada',
     delito: 'Narcotráfico (tenencia simple)',
     resultado: 'pendiente',
@@ -1129,7 +1129,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-903',
     judgeId: 9,
     nroExpediente: '88124/2024',
-    fechaInicio: '2024-08-25', // 365–730 días → demorada
+    fechaInicio: '2024-08-25', // 365–730 días → demora-moderada
     tipoMedida: 'Prisión preventiva atenuada',
     delito: 'Extorsión',
     resultado: 'pendiente',
@@ -1160,7 +1160,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-1003',
     judgeId: 10,
     nroExpediente: '17623/2023',
-    fechaInicio: '2023-10-10', // > 730 días → cajoneada
+    fechaInicio: '2023-10-10', // > 730 días → alta-demora
     tipoMedida: 'Libertad cautelar',
     delito: 'Encubrimiento agravado',
     resultado: 'pendiente',
@@ -1243,7 +1243,7 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-1203',
     judgeId: 12,
     nroExpediente: '24891/2024',
-    fechaInicio: '2024-12-10', // 365–730 días → demorada
+    fechaInicio: '2024-12-10', // 365–730 días → demora-moderada
     tipoMedida: 'Arresto domiciliario',
     delito: 'Lavado de activos',
     resultado: 'pendiente',
@@ -1470,15 +1470,18 @@ const MOCK_JUDGE_INFO: Record<
  * Calcula el estado de una causa según días desde inicio y presencia de resolución.
  * Umbrales basados en la mediana del proceso penal argentino (Procuración General de la Nación).
  * Fuente: https://www.mpf.gob.ar/docs/RepositorioB/Ebooks/qE533.pdf
+ *
+ * Los valores devueltos son descriptivos del tiempo transcurrido y NO implican
+ * juicio sobre la conducta del magistrado.
  */
-function calcularEstadoCausa(fechaInicio: string, tieneResolucion: boolean): EstadoCausa {
+export function calcularEstadoCausa(fechaInicio: string, tieneResolucion: boolean): EstadoCausa {
   if (tieneResolucion) return 'resuelta';
   const inicio = new Date(fechaInicio);
   const hoy = new Date();
   const dias = Math.floor((hoy.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
   if (dias < 365) return 'activa';
-  if (dias < 730) return 'demorada';
-  return 'cajoneada';
+  if (dias <= 730) return 'demora-moderada';
+  return 'alta-demora';
 }
 
 @Injectable()
