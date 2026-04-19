@@ -1129,17 +1129,17 @@ const MOCK_JUDGE_INFO: Record<
 
 /**
  * Calcula el estado de una causa según días desde inicio y presencia de resolución.
- * Umbrales basados en la mediana del proceso penal argentino (Procuración General de la Nación).
+ * Clasificación objetiva por tiempo — no implica juicio sobre la conducta del magistrado.
  * Fuente: https://www.mpf.gob.ar/docs/RepositorioB/Ebooks/qE533.pdf
  */
-function calcularEstadoCausa(fechaInicio: string, tieneResolucion: boolean): EstadoCausa {
+export function calcularEstadoCausa(fechaInicio: string, tieneResolucion: boolean): EstadoCausa {
   if (tieneResolucion) return 'resuelta';
   const inicio = new Date(fechaInicio);
   const hoy = new Date();
   const dias = Math.floor((hoy.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
   if (dias < 365) return 'activa';
-  if (dias < 730) return 'demorada';
-  return 'cajoneada';
+  if (dias <= 730) return 'demora-moderada';
+  return 'alta-demora';
 }
 
 // ── Servicio ──────────────────────────────────────────────────────────────────

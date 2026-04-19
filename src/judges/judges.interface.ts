@@ -131,17 +131,21 @@ export interface Caso {
   observaciones?: string;
 }
 
-// ── Causas cajoneadas ─────────────────────────────────────────────────────────
+// ── Causas demoradas ──────────────────────────────────────────────────────────
 
 /**
+ * Clasificación objetiva por días transcurridos sin resolución.
  * Umbrales basados en la mediana del proceso penal argentino (Procuración General de la Nación):
  * Fuente: https://www.mpf.gob.ar/docs/RepositorioB/Ebooks/qE533.pdf
- *   activa:    < 365 días
- *   demorada:  365–730 días
- *   cajoneada: > 730 días
- *   resuelta:  tiene fechaResolucion
+ *   activa:          < 365 días
+ *   demora-moderada: 365–730 días
+ *   alta-demora:     > 730 días
+ *   resuelta:        tiene fechaResolucion
+ *
+ * Nota: los valores son descriptivos del tiempo transcurrido, NO implican juicio
+ * sobre la conducta del magistrado.
  */
-export type EstadoCausa = 'activa' | 'demorada' | 'cajoneada' | 'resuelta';
+export type EstadoCausa = 'activa' | 'demora-moderada' | 'alta-demora' | 'resuelta';
 
 export interface CausaRanking {
   expediente: string;
