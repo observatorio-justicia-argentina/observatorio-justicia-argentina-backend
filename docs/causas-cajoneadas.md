@@ -102,6 +102,10 @@ Ranking global de causas, ordenado por `diasDesdeInicio` DESC.
 | Parámetro | Tipo | Descripción |
 |---|---|---|
 | `estado` | `activa\|demorada\|cajoneada\|resuelta\|todas` | Filtro por estado |
+| `provincia` | string | Filtro por provincia (ej: `CABA`, `Buenos Aires`) |
+| `fuero` | string | Filtro por fuero (ej: `Criminal y Correccional Nacional`) |
+| `alcance` | `Nacional\|Federal\|Provincial` | Filtro por alcance jurisdiccional |
+| `delito` | string | Búsqueda libre en el campo delito |
 | `page` | number | Paginación |
 | `limit` | number | Default 20 |
 
@@ -112,6 +116,11 @@ interface CausaRanking {
   expediente: string;
   judgeSlug: string;
   judgeName: string;
+  // Jurisdicción (aplanada desde el juez)
+  provincia: string;
+  fuero: string;
+  alcance: 'Nacional' | 'Federal' | 'Provincial';
+  // Causa
   delito: string;
   fechaInicio: string;
   diasDesdeInicio: number;
