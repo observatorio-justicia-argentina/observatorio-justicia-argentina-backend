@@ -1,5 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ArchivoPublico, Caso, Judge, JudgeWithStats, PaginatedResult } from './judges.interface';
+import {
+  ArchivoPublico,
+  Caso,
+  CausaRanking,
+  CausasFilter,
+  EstadoCausa,
+  Judge,
+  JudgeWithStats,
+  PaginatedResult,
+} from './judges.interface';
 
 /**
  * Genera un slug URL-friendly a partir del nombre del juez y su provincia.
@@ -788,13 +797,15 @@ const MOCK_JUDGES: Judge[] = [
 ];
 
 const MOCK_CASOS: Caso[] = [
-  // ── Juez 1: García Morales (CABA) ────────────────────────────────────────
+  // ── Juez 1: Pérez Gómez (CABA · Criminal y Correccional Nacional) ─────────
   {
     id: 'c-101',
     judgeId: 1,
     nroExpediente: '98432/2023',
+    fechaInicio: '2022-10-15',
     fechaResolucion: '2023-08-14',
     tipoMedida: 'Excarcelación',
+    delito: 'Robo agravado',
     resultado: 'nuevo_arresto',
     observaciones: 'Reaprehendido el 02/10/2023 por robo agravado en San Telmo.',
   },
@@ -802,8 +813,10 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-102',
     judgeId: 1,
     nroExpediente: '12987/2023',
+    fechaInicio: '2023-03-20',
     fechaResolucion: '2023-11-03',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Hurto calificado',
     resultado: 'fta',
     observaciones: 'No se presentó a la audiencia del 15/12/2023.',
   },
@@ -811,26 +824,31 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-103',
     judgeId: 1,
     nroExpediente: '45621/2024',
+    fechaInicio: '2023-07-05',
     fechaResolucion: '2024-02-20',
     tipoMedida: 'Prisión preventiva atenuada',
+    delito: 'Lesiones graves',
     resultado: 'revocada',
     observaciones: 'La Cámara revocó por incumplimiento de reglas de conducta.',
   },
   {
     id: 'c-104',
     judgeId: 1,
-    nroExpediente: '67890/2024',
-    fechaResolucion: '2024-05-10',
+    nroExpediente: '67890/2022',
+    fechaInicio: '2022-08-10', // > 730 días → cajoneada
     tipoMedida: 'Libertad bajo caución real',
+    delito: 'Portación ilegal de arma de fuego',
     resultado: 'pendiente',
   },
-  // ── Jueza 2: Vidal Suárez (CABA) ─────────────────────────────────────────
+  // ── Jueza 2: Gutiérrez Sosa (Buenos Aires · La Plata · Penal Provincial) ──
   {
     id: 'c-201',
     judgeId: 2,
     nroExpediente: '33210/2023',
+    fechaInicio: '2023-01-10',
     fechaResolucion: '2023-07-22',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Estafa',
     resultado: 'fta',
     observaciones: 'Paradero desconocido desde agosto de 2023.',
   },
@@ -838,8 +856,10 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-202',
     judgeId: 2,
     nroExpediente: '54871/2023',
+    fechaInicio: '2023-05-20',
     fechaResolucion: '2023-12-01',
     tipoMedida: 'Excarcelación',
+    delito: 'Tentativa de homicidio',
     resultado: 'nuevo_arresto',
     observaciones: 'Detenido nuevamente el 18/01/2024 por tentativa de homicidio.',
   },
@@ -847,17 +867,20 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-203',
     judgeId: 2,
     nroExpediente: '11023/2024',
-    fechaResolucion: '2024-03-15',
+    fechaInicio: '2024-09-15', // 365–730 días → demorada
     tipoMedida: 'Arresto domiciliario',
+    delito: 'Amenazas calificadas',
     resultado: 'pendiente',
   },
-  // ── Juez 3: Espinoza Leal (CABA) ─────────────────────────────────────────
+  // ── Juez 3: Molina Paz (Córdoba · Penal Federal) ──────────────────────────
   {
     id: 'c-301',
     judgeId: 3,
     nroExpediente: '78123/2022',
+    fechaInicio: '2022-01-15',
     fechaResolucion: '2022-09-05',
     tipoMedida: 'Excarcelación',
+    delito: 'Narcotráfico',
     resultado: 'nuevo_arresto',
     observaciones: 'Detenido por segundo hecho el 22/10/2022 en Palermo.',
   },
@@ -865,16 +888,20 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-302',
     judgeId: 3,
     nroExpediente: '90045/2022',
+    fechaInicio: '2022-04-25',
     fechaResolucion: '2022-11-18',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Contrabando',
     resultado: 'fta',
   },
   {
     id: 'c-303',
     judgeId: 3,
-    nroExpediente: '14532/2023',
+    nroExpediente: '14532/2022',
+    fechaInicio: '2022-09-10',
     fechaResolucion: '2023-04-07',
     tipoMedida: 'Libertad bajo caución juratoria',
+    delito: 'Corrupción de funcionario público',
     resultado: 'revocada',
     observaciones: 'Revocada por reiteración delictiva comprobada.',
   },
@@ -882,86 +909,103 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-304',
     judgeId: 3,
     nroExpediente: '62791/2023',
+    fechaInicio: '2023-03-01',
     fechaResolucion: '2023-09-30',
     tipoMedida: 'Prisión preventiva atenuada',
+    delito: 'Lavado de activos',
     resultado: 'nuevo_arresto',
   },
   {
     id: 'c-305',
     judgeId: 3,
-    nroExpediente: '29841/2024',
-    fechaResolucion: '2024-01-22',
+    nroExpediente: '29841/2025',
+    fechaInicio: '2025-12-05', // < 365 días → activa
     tipoMedida: 'Excarcelación',
+    delito: 'Defraudación al Estado',
     resultado: 'pendiente',
   },
-  // ── Jueza 4: Castro Ruiz (CABA) ───────────────────────────────────────────
+  // ── Jueza 4: Castro Ruiz (CABA · Criminal y Correccional Nacional) ─────────
   {
     id: 'c-401',
     judgeId: 4,
     nroExpediente: '43219/2023',
+    fechaInicio: '2022-12-01',
     fechaResolucion: '2023-06-14',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Robo con arma de fuego',
     resultado: 'fta',
     observaciones: 'Incomparecencia a audiencia de control del 20/07/2023.',
   },
   {
     id: 'c-402',
     judgeId: 4,
-    nroExpediente: '87654/2023',
-    fechaResolucion: '2023-10-28',
+    nroExpediente: '87654/2021',
+    fechaInicio: '2021-11-10', // > 730 días → cajoneada
     tipoMedida: 'Excarcelación',
+    delito: 'Daño agravado',
     resultado: 'pendiente',
   },
   {
     id: 'c-403',
     judgeId: 4,
-    nroExpediente: '55320/2024',
+    nroExpediente: '55320/2023',
+    fechaInicio: '2023-09-15',
     fechaResolucion: '2024-04-03',
     tipoMedida: 'Arresto domiciliario',
+    delito: 'Amenazas',
     resultado: 'revocada',
     observaciones: 'Quebrantó condiciones del arresto domiciliario.',
   },
-  // ── Juez 5: Torres Ibáñez (BA - La Matanza) ───────────────────────────────
+  // ── Juez 5: Torres Ibáñez (Buenos Aires · La Matanza · Penal Provincial) ──
   {
     id: 'c-501',
     judgeId: 5,
     nroExpediente: '31456/2022',
+    fechaInicio: '2022-05-20',
     fechaResolucion: '2022-10-11',
     tipoMedida: 'Excarcelación',
+    delito: 'Robo simple',
     resultado: 'nuevo_arresto',
     observaciones: 'Nuevo hecho delictivo el 05/11/2022.',
   },
   {
     id: 'c-502',
     judgeId: 5,
-    nroExpediente: '79023/2023',
+    nroExpediente: '79023/2022',
+    fechaInicio: '2022-09-01',
     fechaResolucion: '2023-03-20',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Hurto',
     resultado: 'fta',
   },
   {
     id: 'c-503',
     judgeId: 5,
     nroExpediente: '15678/2023',
+    fechaInicio: '2023-02-14',
     fechaResolucion: '2023-08-09',
     tipoMedida: 'Libertad bajo caución real',
+    delito: 'Lesiones leves',
     resultado: 'revocada',
   },
   {
     id: 'c-504',
     judgeId: 5,
     nroExpediente: '48921/2024',
-    fechaResolucion: '2024-02-14',
+    fechaInicio: '2024-11-08', // 365–730 días → demorada
     tipoMedida: 'Prisión preventiva atenuada',
+    delito: 'Violación de domicilio',
     resultado: 'pendiente',
   },
-  // ── Jueza 6: González Ruiz (BA - La Matanza) ──────────────────────────────
+  // ── Jueza 6: González Ruiz (Buenos Aires · La Matanza · Penal Provincial) ─
   {
     id: 'c-601',
     judgeId: 6,
     nroExpediente: '22134/2022',
+    fechaInicio: '2022-02-10',
     fechaResolucion: '2022-08-30',
     tipoMedida: 'Excarcelación',
+    delito: 'Robo calificado',
     resultado: 'nuevo_arresto',
     observaciones: 'Arrestado por robo calificado el 14/09/2022.',
   },
@@ -969,35 +1013,43 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-602',
     judgeId: 6,
     nroExpediente: '66543/2022',
+    fechaInicio: '2022-06-20',
     fechaResolucion: '2022-12-15',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Daño simple',
     resultado: 'fta',
     observaciones: 'Sin noticias del imputado desde enero 2023.',
   },
   {
     id: 'c-603',
     judgeId: 6,
-    nroExpediente: '10982/2023',
+    nroExpediente: '10982/2022',
+    fechaInicio: '2022-11-30',
     fechaResolucion: '2023-05-04',
     tipoMedida: 'Libertad bajo caución juratoria',
+    delito: 'Estafa',
     resultado: 'revocada',
   },
   {
     id: 'c-604',
     judgeId: 6,
-    nroExpediente: '39871/2024',
+    nroExpediente: '39871/2023',
+    fechaInicio: '2023-08-10',
     fechaResolucion: '2024-03-28',
     tipoMedida: 'Arresto domiciliario',
+    delito: 'Homicidio culposo',
     resultado: 'nuevo_arresto',
     observaciones: 'Quebrantó el arresto y cometió nuevo delito.',
   },
-  // ── Jueza 7: Pereyra Blanco (BA - La Plata) ───────────────────────────────
+  // ── Jueza 7: Pereyra Blanco (Buenos Aires · La Plata · Penal Provincial) ──
   {
     id: 'c-701',
     judgeId: 7,
-    nroExpediente: '57831/2023',
+    nroExpediente: '57831/2022',
+    fechaInicio: '2022-07-05',
     fechaResolucion: '2023-02-17',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Abuso sexual',
     resultado: 'fta',
     observaciones: 'No compareció al control mensual del 17/03/2023.',
   },
@@ -1005,25 +1057,30 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-702',
     judgeId: 7,
     nroExpediente: '84290/2023',
+    fechaInicio: '2023-03-10',
     fechaResolucion: '2023-09-22',
     tipoMedida: 'Excarcelación',
+    delito: 'Lesiones graves',
     resultado: 'nuevo_arresto',
   },
   {
     id: 'c-703',
     judgeId: 7,
-    nroExpediente: '27654/2024',
-    fechaResolucion: '2024-01-08',
+    nroExpediente: '27654/2023',
+    fechaInicio: '2023-06-20', // > 730 días → cajoneada
     tipoMedida: 'Prisión preventiva atenuada',
+    delito: 'Narcotráfico (tenencia simple)',
     resultado: 'pendiente',
   },
-  // ── Juez 8: Méndez Vega (BA - La Plata) ──────────────────────────────────
+  // ── Juez 8: Méndez Vega (Buenos Aires · La Plata · Penal Federal) ─────────
   {
     id: 'c-801',
     judgeId: 8,
-    nroExpediente: '19023/2023',
+    nroExpediente: '19023/2022',
+    fechaInicio: '2022-10-20',
     fechaResolucion: '2023-04-14',
     tipoMedida: 'Excarcelación',
+    delito: 'Peculado',
     resultado: 'revocada',
     observaciones: 'Revocada por la Cámara ante reiteración delictiva.',
   },
@@ -1031,33 +1088,40 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-802',
     judgeId: 8,
     nroExpediente: '63410/2023',
+    fechaInicio: '2023-04-05',
     fechaResolucion: '2023-10-30',
     tipoMedida: 'Libertad bajo caución real',
+    delito: 'Administración fraudulenta',
     resultado: 'fta',
   },
   {
     id: 'c-803',
     judgeId: 8,
-    nroExpediente: '41287/2024',
-    fechaResolucion: '2024-04-19',
+    nroExpediente: '41287/2026',
+    fechaInicio: '2026-01-15', // < 365 días → activa
     tipoMedida: 'Libertad cautelar',
+    delito: 'Soborno',
     resultado: 'pendiente',
   },
-  // ── Jueza 9: Fernández Ríos (Córdoba) ────────────────────────────────────
+  // ── Jueza 9: Fernández Ríos (Córdoba · Penal Provincial) ─────────────────
   {
     id: 'c-901',
     judgeId: 9,
-    nroExpediente: '72341/2023',
+    nroExpediente: '72341/2022',
+    fechaInicio: '2022-11-10',
     fechaResolucion: '2023-05-08',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Robo en poblado y en banda',
     resultado: 'fta',
   },
   {
     id: 'c-902',
     judgeId: 9,
     nroExpediente: '35912/2023',
+    fechaInicio: '2023-05-01',
     fechaResolucion: '2023-11-14',
     tipoMedida: 'Excarcelación',
+    delito: 'Tentativa de robo',
     resultado: 'nuevo_arresto',
     observaciones: 'Detenido por hecho independiente el 09/12/2023.',
   },
@@ -1065,17 +1129,20 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-903',
     judgeId: 9,
     nroExpediente: '88124/2024',
-    fechaResolucion: '2024-03-07',
+    fechaInicio: '2024-08-25', // 365–730 días → demorada
     tipoMedida: 'Prisión preventiva atenuada',
+    delito: 'Extorsión',
     resultado: 'pendiente',
   },
-  // ── Jueza 10: Ramos Prieto (Córdoba) ─────────────────────────────────────
+  // ── Jueza 10: Ramos Prieto (Córdoba · Penal Federal) ─────────────────────
   {
     id: 'c-1001',
     judgeId: 10,
-    nroExpediente: '29087/2023',
+    nroExpediente: '29087/2022',
+    fechaInicio: '2022-12-15',
     fechaResolucion: '2023-06-19',
     tipoMedida: 'Libertad bajo caución juratoria',
+    delito: 'Defraudación al Estado',
     resultado: 'fta',
     observaciones: 'Incomparecencia sin justificación.',
   },
@@ -1083,25 +1150,30 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-1002',
     judgeId: 10,
     nroExpediente: '51340/2023',
+    fechaInicio: '2023-05-25',
     fechaResolucion: '2023-12-05',
     tipoMedida: 'Excarcelación',
+    delito: 'Malversación de caudales públicos',
     resultado: 'nuevo_arresto',
   },
   {
     id: 'c-1003',
     judgeId: 10,
-    nroExpediente: '17623/2024',
-    fechaResolucion: '2024-02-28',
+    nroExpediente: '17623/2023',
+    fechaInicio: '2023-10-10', // > 730 días → cajoneada
     tipoMedida: 'Libertad cautelar',
+    delito: 'Encubrimiento agravado',
     resultado: 'pendiente',
   },
-  // ── Juez 11: Herrera Montoya (Santa Fe - Rosario) ─────────────────────────
+  // ── Juez 11: Herrera Montoya (Santa Fe · Rosario · Penal Provincial) ──────
   {
     id: 'c-1101',
     judgeId: 11,
-    nroExpediente: '84561/2022',
+    nroExpediente: '84561/2021',
+    fechaInicio: '2021-12-05',
     fechaResolucion: '2022-07-22',
     tipoMedida: 'Excarcelación',
+    delito: 'Homicidio doloso',
     resultado: 'nuevo_arresto',
     observaciones: 'Nuevo hecho el 08/08/2022 en zona norte de Rosario.',
   },
@@ -1109,16 +1181,20 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-1102',
     judgeId: 11,
     nroExpediente: '43219/2022',
+    fechaInicio: '2022-04-01',
     fechaResolucion: '2022-11-10',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Portación ilegal de arma',
     resultado: 'fta',
   },
   {
     id: 'c-1103',
     judgeId: 11,
-    nroExpediente: '19034/2023',
+    nroExpediente: '19034/2022',
+    fechaInicio: '2022-09-20',
     fechaResolucion: '2023-04-25',
     tipoMedida: 'Libertad bajo caución real',
+    delito: 'Robo con arma blanca',
     resultado: 'revocada',
     observaciones: 'La Sala revocó la medida por inconducta procesal reiterada.',
   },
@@ -1126,25 +1202,30 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-1104',
     judgeId: 11,
     nroExpediente: '67821/2023',
+    fechaInicio: '2023-02-05',
     fechaResolucion: '2023-09-03',
     tipoMedida: 'Arresto domiciliario',
+    delito: 'Lesiones graves',
     resultado: 'nuevo_arresto',
   },
   {
     id: 'c-1105',
     judgeId: 11,
-    nroExpediente: '32456/2024',
-    fechaResolucion: '2024-01-15',
+    nroExpediente: '32456/2025',
+    fechaInicio: '2025-11-20', // < 365 días → activa
     tipoMedida: 'Excarcelación',
+    delito: 'Amenazas con arma',
     resultado: 'pendiente',
   },
-  // ── Juez 12: Molina Sosa (Santa Fe - Rosario) ─────────────────────────────
+  // ── Juez 12: Molina Sosa (Santa Fe · Rosario · Penal Federal) ────────────
   {
     id: 'c-1201',
     judgeId: 12,
-    nroExpediente: '91230/2023',
+    nroExpediente: '91230/2022',
+    fechaInicio: '2022-08-25',
     fechaResolucion: '2023-03-11',
     tipoMedida: 'Libertad cautelar',
+    delito: 'Narcotráfico',
     resultado: 'fta',
     observaciones: 'Incomparecencia a audiencia del 14/04/2023.',
   },
@@ -1152,16 +1233,19 @@ const MOCK_CASOS: Caso[] = [
     id: 'c-1202',
     judgeId: 12,
     nroExpediente: '58743/2023',
+    fechaInicio: '2023-01-20',
     fechaResolucion: '2023-08-29',
     tipoMedida: 'Excarcelación',
+    delito: 'Contrabando agravado',
     resultado: 'nuevo_arresto',
   },
   {
     id: 'c-1203',
     judgeId: 12,
     nroExpediente: '24891/2024',
-    fechaResolucion: '2024-04-10',
+    fechaInicio: '2024-12-10', // 365–730 días → demorada
     tipoMedida: 'Arresto domiciliario',
+    delito: 'Lavado de activos',
     resultado: 'pendiente',
   },
 ];
@@ -1281,6 +1365,122 @@ const MOCK_ARCHIVOS: ArchivoPublico[] = [
   },
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Lookup de datos mínimos de juez para el ranking de causas.
+// Los jueces 1–3 tienen perfil completo en MOCK_JUDGES; los demás solo tienen
+// los campos necesarios para la vista /causas.
+// ─────────────────────────────────────────────────────────────────────────────
+const MOCK_JUDGE_INFO: Record<
+  number,
+  {
+    slug: string;
+    name: string;
+    provincia: string;
+    fuero: string;
+    alcance: 'Nacional' | 'Federal' | 'Provincial';
+  }
+> = {
+  1: {
+    slug: 'juan-carlos-perez-gomez-caba',
+    name: 'Dr. Juan Carlos Pérez Gómez',
+    provincia: 'CABA',
+    fuero: 'Criminal y Correccional Nacional',
+    alcance: 'Nacional',
+  },
+  2: {
+    slug: 'maria-elena-gutierrez-sosa-buenos-aires',
+    name: 'Dra. María Elena Gutiérrez Sosa',
+    provincia: 'Buenos Aires',
+    fuero: 'Penal',
+    alcance: 'Provincial',
+  },
+  3: {
+    slug: 'roberto-ernesto-molina-paz-cordoba',
+    name: 'Dr. Roberto Ernesto Molina Paz',
+    provincia: 'Córdoba',
+    fuero: 'Penal Federal',
+    alcance: 'Federal',
+  },
+  4: {
+    slug: 'valeria-castro-ruiz-caba',
+    name: 'Dra. Valeria Castro Ruiz',
+    provincia: 'CABA',
+    fuero: 'Criminal y Correccional Nacional',
+    alcance: 'Nacional',
+  },
+  5: {
+    slug: 'marcos-torres-ibanez-buenos-aires',
+    name: 'Dr. Marcos Torres Ibáñez',
+    provincia: 'Buenos Aires',
+    fuero: 'Penal',
+    alcance: 'Provincial',
+  },
+  6: {
+    slug: 'claudia-gonzalez-ruiz-buenos-aires',
+    name: 'Dra. Claudia González Ruiz',
+    provincia: 'Buenos Aires',
+    fuero: 'Penal',
+    alcance: 'Provincial',
+  },
+  7: {
+    slug: 'susana-pereyra-blanco-buenos-aires',
+    name: 'Dra. Susana Pereyra Blanco',
+    provincia: 'Buenos Aires',
+    fuero: 'Penal',
+    alcance: 'Provincial',
+  },
+  8: {
+    slug: 'horacio-mendez-vega-buenos-aires',
+    name: 'Dr. Horacio Méndez Vega',
+    provincia: 'Buenos Aires',
+    fuero: 'Penal Federal',
+    alcance: 'Federal',
+  },
+  9: {
+    slug: 'patricia-fernandez-rios-cordoba',
+    name: 'Dra. Patricia Fernández Ríos',
+    provincia: 'Córdoba',
+    fuero: 'Penal',
+    alcance: 'Provincial',
+  },
+  10: {
+    slug: 'elena-ramos-prieto-cordoba',
+    name: 'Dra. Elena Ramos Prieto',
+    provincia: 'Córdoba',
+    fuero: 'Penal Federal',
+    alcance: 'Federal',
+  },
+  11: {
+    slug: 'alejandro-herrera-montoya-santa-fe',
+    name: 'Dr. Alejandro Herrera Montoya',
+    provincia: 'Santa Fe',
+    fuero: 'Penal',
+    alcance: 'Provincial',
+  },
+  12: {
+    slug: 'gonzalo-molina-sosa-santa-fe',
+    name: 'Dr. Gonzalo Molina Sosa',
+    provincia: 'Santa Fe',
+    fuero: 'Penal Federal',
+    alcance: 'Federal',
+  },
+};
+
+/**
+ * Calcula el estado de una causa según días desde inicio y presencia de resolución.
+ * Umbrales basados en la mediana del proceso penal argentino (Procuración General de la Nación).
+ * Fuente: https://www.mpf.gob.ar/docs/RepositorioB/Ebooks/qE533.pdf
+ */
+function calcularEstadoCausa(fechaInicio: string, tieneResolucion: boolean): EstadoCausa {
+  if (tieneResolucion) return 'resuelta';
+  const inicio = new Date(fechaInicio);
+  const hoy = new Date();
+  const dias = Math.floor((hoy.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+  if (dias < 365) return 'activa';
+  if (dias < 730) return 'demorada';
+  return 'cajoneada';
+}
+
 @Injectable()
 export class JudgesService {
   findAll(): JudgeWithStats[] {
@@ -1317,5 +1517,87 @@ export class JudgesService {
 
   getArchivosByJudge(judgeId: number): ArchivoPublico[] {
     return MOCK_ARCHIVOS.filter((a) => a.judgeId === judgeId);
+  }
+
+  /**
+   * Construye el ranking global de causas, ordenado por diasDesdeInicio DESC.
+   * Aplica los filtros de CausasFilter (AND acumulativo).
+   */
+  getCausasRanking(filter: CausasFilter = {}): PaginatedResult<CausaRanking> {
+    const hoy = new Date();
+
+    let items: CausaRanking[] = MOCK_CASOS.map((caso) => {
+      const info = MOCK_JUDGE_INFO[caso.judgeId];
+      if (!info) return null;
+
+      const tieneResolucion = caso.resultado !== 'pendiente';
+      const inicio = new Date(caso.fechaInicio);
+      const diasDesdeInicio = Math.floor(
+        (hoy.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      const estadoCausa = calcularEstadoCausa(caso.fechaInicio, tieneResolucion);
+
+      return {
+        expediente: caso.nroExpediente,
+        judgeSlug: info.slug,
+        judgeName: info.name,
+        provincia: info.provincia,
+        fuero: info.fuero,
+        alcance: info.alcance,
+        delito: caso.delito ?? '',
+        fechaInicio: caso.fechaInicio,
+        diasDesdeInicio,
+        estadoCausa,
+        tieneResolucion,
+      } satisfies CausaRanking;
+    }).filter((item): item is CausaRanking => item !== null);
+
+    // ── Filtros ────────────────────────────────────────────────────────────────
+    if (filter.estado && filter.estado !== 'todas') {
+      items = items.filter((i) => i.estadoCausa === filter.estado);
+    }
+    if (filter.provincia) {
+      items = items.filter((i) => i.provincia.toLowerCase() === filter.provincia!.toLowerCase());
+    }
+    if (filter.fuero) {
+      items = items.filter((i) => i.fuero.toLowerCase().includes(filter.fuero!.toLowerCase()));
+    }
+    if (filter.alcance) {
+      items = items.filter((i) => i.alcance === filter.alcance);
+    }
+    if (filter.delito) {
+      items = items.filter((i) => i.delito.toLowerCase().includes(filter.delito!.toLowerCase()));
+    }
+
+    // ── Ordenar por diasDesdeInicio DESC (sin resolución primero) ─────────────
+    items.sort((a, b) => b.diasDesdeInicio - a.diasDesdeInicio);
+
+    // ── Paginación ─────────────────────────────────────────────────────────────
+    const page = Math.max(1, filter.page ?? 1);
+    const limit = Math.max(1, filter.limit ?? 20);
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    const safePage = Math.min(page, totalPages);
+    const data = items.slice((safePage - 1) * limit, safePage * limit);
+
+    return { data, total, page: safePage, limit, totalPages };
+  }
+
+  /**
+   * Ranking de causas filtrado al juez identificado por slug.
+   * Sin paginación: devuelve todas las causas del juez.
+   */
+  getCausasRankingByJudge(slug: string): CausaRanking[] {
+    const entry = Object.entries(MOCK_JUDGE_INFO).find(([, info]) => info.slug === slug);
+    if (!entry) return [];
+    const judgeId = parseInt(entry[0], 10);
+
+    const filter: CausasFilter = { limit: 1000, page: 1 };
+    const all = this.getCausasRanking(filter);
+    return all.data.filter(
+      (c) =>
+        c.judgeSlug === slug ||
+        MOCK_CASOS.some((caso) => caso.judgeId === judgeId && caso.nroExpediente === c.expediente),
+    );
   }
 }

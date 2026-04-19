@@ -134,10 +134,48 @@ export interface Caso {
   id: string;
   judgeId: number;
   nroExpediente: string;
-  fechaResolucion: string; // ISO date (YYYY-MM-DD)
+  fechaInicio: string; // ISO date — cuándo se abrió/denunció la causa
+  fechaResolucion?: string; // ISO date — solo si tiene resolución
   tipoMedida: string;
+  delito: string; // tipo de causa/delito
   resultado: ResultadoCaso;
   observaciones?: string;
+}
+
+// ── Causas cajoneadas ─────────────────────────────────────────────────────────
+
+/**
+ * Umbrales basados en la mediana del proceso penal argentino (Procuración General de la Nación):
+ * Fuente: https://www.mpf.gob.ar/docs/RepositorioB/Ebooks/qE533.pdf
+ *   activa:    < 365 días
+ *   demorada:  365–730 días
+ *   cajoneada: > 730 días
+ *   resuelta:  tiene fechaResolucion
+ */
+export type EstadoCausa = 'activa' | 'demorada' | 'cajoneada' | 'resuelta';
+
+export interface CausaRanking {
+  expediente: string;
+  judgeSlug: string;
+  judgeName: string;
+  provincia: string;
+  fuero: string;
+  alcance: 'Nacional' | 'Federal' | 'Provincial';
+  delito: string;
+  fechaInicio: string;
+  diasDesdeInicio: number;
+  estadoCausa: EstadoCausa;
+  tieneResolucion: boolean;
+}
+
+export interface CausasFilter {
+  estado?: EstadoCausa | 'todas';
+  provincia?: string;
+  fuero?: string;
+  alcance?: 'Nacional' | 'Federal' | 'Provincial';
+  delito?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface ArchivoPublico {
