@@ -45,6 +45,55 @@ export interface JudgeSourceLink {
   description: string;
 }
 
+// ── Expediente Reputacional — Fase 1 ─────────────────────────────────────────
+
+/** Asociación o agrupación judicial a la que pertenece el magistrado */
+export interface JudgeAssociation {
+  /** Nombre de la agrupación. Ej: "Justicia Legítima", "Asociación de Magistrados de la Nación" */
+  name: string;
+  /** Rol dentro de la asociación. Ej: "Miembro activo", "Referente regional" */
+  role?: string;
+  /** Año de adhesión o primer registro público de pertenencia */
+  since?: number;
+  /** URL a fuente pública que acredita la pertenencia */
+  sourceUrl?: string;
+}
+
+/**
+ * Clasificación del origen predominante de la designación.
+ * "judicial"  → carrera judicial "pura": secretario → fiscal/defensor → juez
+ * "political" → nombramiento con fuerte respaldo político sin trayectoria judicial previa
+ * "academic"  → proveniente de la docencia/academia con concurso posterior
+ * "mixed"     → trayectoria mixta (carrera + aval político explícito)
+ */
+export type PoliticalOrigin = 'judicial' | 'political' | 'academic' | 'mixed';
+
+/** Detalle del proceso de designación ante el Consejo de la Magistratura y el Senado */
+export interface JudgeAppointmentDetail {
+  /** Clasificación del origen de la designación */
+  politicalOrigin: PoliticalOrigin;
+  /** Descripción textual del contexto de designación */
+  politicalOriginDetail?: string;
+  /** Fuentes documentales del origen de la designación (lista con links) */
+  politicalOriginSources?: { label: string; url: string }[];
+  /** Puntaje obtenido en el concurso del Consejo de la Magistratura */
+  magistraturaScore?: number;
+  /** Puesto en el orden de mérito (1 = primero) */
+  magistraturaRank?: number;
+  /** Identificador del concurso. Ej: "Concurso N° 247" */
+  magistraturaCompetitionId?: string;
+  /** URL al acta o resolución del concurso */
+  magistraturaSourceUrl?: string;
+  /** Senadores nacionales que respaldaron el pliego de designación */
+  senateBackers?: string[];
+  /** Fecha de la sesión del Senado que aprobó el acuerdo */
+  senateSession?: string;
+  /** URL a la versión taquigráfica de la sesión */
+  senateRecordUrl?: string;
+}
+
+// ── Campos extendidos (opcionales — disponibles en perfiles completos) ────────
+
 export interface JudgeEducation {
   degree: string;
   institution: string;
@@ -95,6 +144,9 @@ export interface Judge {
   careerHistory?: JudgeCareerEntry[];
   notableDecisions?: JudgeNotableDecision[];
   extendedStats?: JudgeExtendedStats;
+  // ── Expediente Reputacional — Fase 1 ───────────────────────────────────────
+  associations?: JudgeAssociation[];
+  appointmentDetail?: JudgeAppointmentDetail;
 }
 
 /** Judge + estadísticas computadas desde sus casos + sueldo actual para compat con el frontend */
