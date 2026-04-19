@@ -101,6 +101,39 @@ describe('Expediente Reputacional — Fase 1', () => {
         }
       });
     });
+
+    it('politicalOriginSources es un array cuando está presente', () => {
+      const all = service.findAllRaw();
+      all.forEach((j) => {
+        if (j.appointmentDetail?.politicalOriginSources !== undefined) {
+          expect(Array.isArray(j.appointmentDetail.politicalOriginSources)).toBe(true);
+        }
+      });
+    });
+
+    it('cada elemento de politicalOriginSources tiene label y url string no vacíos', () => {
+      const all = service.findAllRaw();
+      all.forEach((j) => {
+        j.appointmentDetail?.politicalOriginSources?.forEach((src) => {
+          expect(typeof src.label).toBe('string');
+          expect(src.label.length).toBeGreaterThan(0);
+          expect(typeof src.url).toBe('string');
+          expect(src.url.length).toBeGreaterThan(0);
+        });
+      });
+    });
+
+    it('el juez "judicial" tiene politicalOriginSources con al menos 2 fuentes', () => {
+      const judge = service.findBySlug('juan-carlos-perez-gomez-caba');
+      expect(judge?.appointmentDetail?.politicalOriginSources).toBeDefined();
+      expect(judge!.appointmentDetail!.politicalOriginSources!.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('el juez "political" tiene politicalOriginSources con al menos 1 fuente', () => {
+      const judge = service.findBySlug('roberto-ernesto-molina-paz-cordoba');
+      expect(judge?.appointmentDetail?.politicalOriginSources).toBeDefined();
+      expect(judge!.appointmentDetail!.politicalOriginSources!.length).toBeGreaterThanOrEqual(1);
+    });
   });
 
   // ── integración con findBySlug ───────────────────────────────────────────────

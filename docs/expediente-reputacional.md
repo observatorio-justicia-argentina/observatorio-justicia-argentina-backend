@@ -49,7 +49,8 @@ type PoliticalOrigin = 'judicial' | 'political' | 'academic' | 'mixed';
 ```typescript
 interface JudgeAppointmentDetail {
   politicalOrigin: PoliticalOrigin;
-  politicalOriginDetail?: string;       // descripción libre del contexto
+  politicalOriginDetail?: string;                          // descripción libre del contexto (legacy)
+  politicalOriginSources?: { label: string; url: string }[]; // lista de fuentes documentales con link
   magistraturaScore?: number;           // puntaje en el concurso
   magistraturaRank?: number;            // puesto en el orden de mérito
   magistraturaCompetitionId?: string;   // ej: "Concurso N° 312"
@@ -59,6 +60,16 @@ interface JudgeAppointmentDetail {
   senateRecordUrl?: string;             // link a versión taquigráfica
 }
 ```
+
+> **`politicalOriginSources`** reemplaza al campo de texto libre `politicalOriginDetail`.
+> Cada elemento es un objeto `{ label, url }` que el frontend renderiza como lista de links con subrayado punteado.
+> Ejemplo:
+> ```json
+> [
+>   { "label": "Ingresó al Poder Judicial en 2001 como empleado (Res. 45/2001)", "url": "https://..." },
+>   { "label": "Concurso N° 247 — Consejo de la Magistratura (2017)", "url": "https://..." }
+> ]
+> ```
 
 ### Campos nuevos en `Judge`
 
