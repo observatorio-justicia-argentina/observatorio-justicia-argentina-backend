@@ -2,6 +2,7 @@ export interface JudgeLocation {
   country: string;
   province: string;
   department: string;
+  city?: string; // partido / localidad dentro del departamento judicial
 }
 
 export interface JudgeJurisdiction {

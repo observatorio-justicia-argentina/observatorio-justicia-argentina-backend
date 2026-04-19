@@ -17,9 +17,47 @@ import { Case, SalaryRecord } from './judges.interface';
 export class JudgesController {
   constructor(private readonly judgesService: JudgesService) {}
 
+  @Get('counts')
+  getCounts() {
+    return this.judgesService.getLocationCounts();
+  }
+
+  @Get('options')
+  getOptions() {
+    return this.judgesService.getFilterOptions();
+  }
+
   @Get()
-  findAll() {
-    return this.judgesService.findAll();
+  findAll(
+    @Query('page') page = '1',
+    @Query('limit') limit = '9',
+    @Query('province') province?: string,
+    @Query('department') department?: string,
+    @Query('city') city?: string,
+    @Query('search') search?: string,
+    @Query('fuero') fuero?: string,
+    @Query('instance') instance?: string,
+    @Query('scope') scope?: string,
+    @Query('salaryBand') salaryBand?: string,
+    @Query('yearsBand') yearsBand?: string,
+    @Query('sortKey') sortKey?: string,
+    @Query('sortDir') sortDir?: string,
+  ) {
+    return this.judgesService.findAll({
+      page: Number(page),
+      limit: Number(limit),
+      province: province || undefined,
+      department: department || undefined,
+      city: city || undefined,
+      search: search || undefined,
+      fuero: fuero || undefined,
+      instance: instance || undefined,
+      scope: scope || undefined,
+      salaryBand: salaryBand as any,
+      yearsBand: yearsBand as any,
+      sortKey: sortKey as any,
+      sortDir: sortDir as any,
+    });
   }
 
   @Get(':slug')
