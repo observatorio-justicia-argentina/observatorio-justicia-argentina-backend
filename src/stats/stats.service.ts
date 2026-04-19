@@ -58,7 +58,7 @@ export class StatsService {
    * y en el interior cada tribunal cubre todo su Departamento Judicial.
    */
   getHierarchy(): JurisdictionNode {
-    const judges = this.judgesService.findAll();
+    const judges = this.judgesService.findAllRaw();
 
     // Agrupar: province → department → jueces
     const tree = new Map<string, Map<string, typeof judges>>();
