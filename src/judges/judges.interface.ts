@@ -3,6 +3,7 @@ export interface JudgeLocation {
   province: string;
   /** Departamento Judicial. En CABA es la ciudad entera; en el interior, el depto. judicial oficial. */
   department: string;
+  city?: string;
 }
 
 export interface JudgeJurisdiction {
@@ -126,6 +127,32 @@ export interface PaginatedResult<T> {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export type SortKey =
+  | 'name'
+  | 'totalReleases'
+  | 'ftaCount'
+  | 'newArrestCount'
+  | 'revokedCount'
+  | 'failureRate';
+export type SalaryBand = 'baja' | 'media' | 'alta';
+export type YearsBand = 'junior' | 'mid' | 'senior';
+
+export interface FindAllParams {
+  page?: number;
+  limit?: number;
+  province?: string;
+  department?: string;
+  city?: string;
+  search?: string;
+  fuero?: string;
+  instance?: string;
+  scope?: string;
+  salaryBand?: SalaryBand;
+  yearsBand?: YearsBand;
+  sortKey?: SortKey;
+  sortDir?: 'asc' | 'desc';
 }
 
 export type ResultadoCaso = 'fta' | 'nuevo_arresto' | 'revocada' | 'pendiente';

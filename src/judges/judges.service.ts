@@ -5,6 +5,7 @@ import {
   CausaRanking,
   CausasFilter,
   EstadoCausa,
+  FindAllParams,
   Judge,
   JudgeWithStats,
   PaginatedResult,
@@ -1486,27 +1487,138 @@ export function calcularEstadoCausa(fechaInicio: string, tieneResolucion: boolea
 
 @Injectable()
 export class JudgesService {
-  findAll(): JudgeWithStats[] {
-    return MOCK_JUDGES.map((judge) => {
-      const totalFailures = judge.ftaCount + judge.newArrestCount + judge.revokedCount;
-      const failureRate =
-        judge.totalReleases > 0
-          ? parseFloat(((totalFailures / judge.totalReleases) * 100).toFixed(2))
-          : 0;
-      return { ...judge, totalFailures, failureRate };
+  private withStats(judge: Judge): JudgeWithStats {
+    const totalFailures = judge.ftaCount + judge.newArrestCount + judge.revokedCount;
+    const failureRate =
+      judge.totalReleases > 0
+        ? parseFloat(((totalFailures / judge.totalReleases) * 100).toFixed(2))
+        : 0;
+    return { ...judge, totalFailures, failureRate };
+  }
+
+  findAll(params: FindAllParams = {}): PaginatedResult<JudgeWithStats> {
+    const {
+      page = 1,
+      limit = 9,
+      province,
+      department,
+      city,
+      search,
+      fuero,
+      instance,
+      scope,
+      salaryBand,
+      yearsBand,
+      sortKey = 'failureRate',
+      sortDir = 'desc',
+    } = params;
+
+    let all = MOCK_JUDGES.map((j) => this.withStats(j));
+
+    if (province) all = all.filter((j) => j.location.province === province);
+    if (department) all = all.filter((j) => j.location.department === department);
+    if (city) all = all.filter((j) => j.location.city === city);
+    if (search) {
+      const q = search.toLowerCase();
+      all = all.filter(
+        (j) =>
+          j.name.toLowerCase().includes(q) ||
+          j.court.toLowerCase().includes(q) ||
+          j.location.province.toLowerCase().includes(q) ||
+          j.location.department.toLowerCase().includes(q) ||
+          j.jurisdiction.fuero.toLowerCase().includes(q),
+      );
+    }
+    if (fuero) all = all.filter((j) => j.jurisdiction.fuero === fuero);
+    if (instance) all = all.filter((j) => j.jurisdiction.instance === instance);
+    if (scope) all = all.filter((j) => j.jurisdiction.scope === scope);
+    if (salaryBand) {
+      all = all.filter((j) => {
+        const gross = j.salary?.grossMonthlyARS ?? 0;
+        if (salaryBand === 'baja') return gross < 6_000_000;
+        if (salaryBand === 'media') return gross >= 6_000_000 && gross <= 10_000_000;
+        return gross > 10_000_000;
+      });
+    }
+    if (yearsBand) {
+      all = all.filter((j) => {
+        if (yearsBand === 'junior') return j.yearsOnBench < 5;
+        if (yearsBand === 'mid') return j.yearsOnBench >= 5 && j.yearsOnBench <= 15;
+        return j.yearsOnBench > 15;
+      });
+    }
+
+    all.sort((a, b) => {
+      const av = sortKey === 'name' ? a.name : (a[sortKey] as number);
+      const bv = sortKey === 'name' ? b.name : (b[sortKey] as number);
+      if (typeof av === 'string' && typeof bv === 'string')
+        return sortDir === 'asc' ? av.localeCompare(bv, 'es') : bv.localeCompare(av, 'es');
+      return sortDir === 'asc' ? (av as number) - (bv as number) : (bv as number) - (av as number);
     });
+
+    const total = all.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const data = all.slice((safePage - 1) * limit, safePage * limit);
+    return { data, total, page: safePage, limit, totalPages };
   }
 
   findOne(id: number): JudgeWithStats | undefined {
-    return this.findAll().find((j) => j.id === id);
+    return MOCK_JUDGES.map((j) => this.withStats(j)).find((j) => j.id === id);
   }
 
   findBySlug(slug: string): JudgeWithStats | undefined {
-    return this.findAll().find((j) => j.slug === slug);
+    const j = MOCK_JUDGES.find((j) => j.slug === slug);
+    return j ? this.withStats(j) : undefined;
+  }
+
+  getLocationCounts(): {
+    byProvince: Record<string, number>;
+    byDepto: Record<string, number>;
+    byCity: Record<string, number>;
+  } {
+    return MOCK_JUDGES.reduce(
+      (acc, j) => {
+        acc.byProvince[j.location.province] = (acc.byProvince[j.location.province] ?? 0) + 1;
+        const dept = j.location.department?.replace(/^Depto\. Judicial\s+/, '') ?? '';
+        if (dept) acc.byDepto[dept] = (acc.byDepto[dept] ?? 0) + 1;
+        if (j.location.city) acc.byCity[j.location.city] = (acc.byCity[j.location.city] ?? 0) + 1;
+        return acc;
+      },
+      {
+        byProvince: {} as Record<string, number>,
+        byDepto: {} as Record<string, number>,
+        byCity: {} as Record<string, number>,
+      },
+    );
+  }
+
+  getFilterOptions(): { fueros: string[]; instances: string[]; scopes: string[] } {
+    return {
+      fueros: [...new Set(MOCK_JUDGES.map((j) => j.jurisdiction.fuero))].sort(),
+      instances: [...new Set(MOCK_JUDGES.map((j) => j.jurisdiction.instance))].sort(),
+      scopes: [...new Set(MOCK_JUDGES.map((j) => j.jurisdiction.scope))].sort(),
+    };
+  }
+
+  getStatsByJudge(judgeId: number) {
+    const judge = this.findOne(judgeId);
+    if (!judge) return null;
+    return {
+      totalReleases: judge.totalReleases,
+      ftaCount: judge.ftaCount,
+      newArrestCount: judge.newArrestCount,
+      revokedCount: judge.revokedCount,
+      failureRate: judge.failureRate,
+    };
   }
 
   getRawData(): Judge[] {
     return MOCK_JUDGES;
+  }
+
+  findAllRaw(): JudgeWithStats[] {
+    return MOCK_JUDGES.map((j) => this.withStats(j));
   }
 
   getCasosByJudge(judgeId: number, page = 1, limit = 10): PaginatedResult<Caso> {
