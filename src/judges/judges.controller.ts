@@ -1,17 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { JudgesService } from './judges.service';
-import { Case, SalaryRecord } from './judges.interface';
 
 @Controller('judges')
 export class JudgesController {
@@ -91,50 +79,5 @@ export class JudgesController {
   @Get(':slug/causas-ranking')
   getCausasRanking(@Param('slug') slug: string) {
     return this.judgesService.getCausasRankingByJudge(slug);
-  }
-
-  @Post()
-  @HttpCode(201)
-  importJudge(@Body() body: Record<string, unknown>) {
-    return this.judgesService.importJudge(body as any);
-  }
-
-  @Put(':slug')
-  updateJudge(@Param('slug') slug: string, @Body() body: Record<string, unknown>) {
-    const updated = this.judgesService.updateJudge(slug, body as any);
-    if (!updated) throw new NotFoundException(`Juez con slug "${slug}" no encontrado`);
-    return updated;
-  }
-
-  @Post(':slug/salary')
-  @HttpCode(201)
-  addSalaryRecord(@Param('slug') slug: string, @Body() body: SalaryRecord) {
-    const updated = this.judgesService.addSalaryRecord(slug, body);
-    if (!updated) throw new NotFoundException(`Juez con slug "${slug}" no encontrado`);
-    return updated;
-  }
-
-  @Post(':slug/cases')
-  @HttpCode(201)
-  addCases(@Param('slug') slug: string, @Body() body: Omit<Case, 'id' | 'judgeId'>[]) {
-    const judge = this.judgesService.findBySlug(slug);
-    if (!judge) throw new NotFoundException(`Juez con slug "${slug}" no encontrado`);
-    return this.judgesService.addCases(judge.id, body);
-  }
-
-  @Delete(':slug/cases/:caseId')
-  @HttpCode(204)
-  removeCase(@Param('slug') slug: string, @Param('caseId') caseId: string) {
-    const judge = this.judgesService.findBySlug(slug);
-    if (!judge) throw new NotFoundException(`Juez con slug "${slug}" no encontrado`);
-    const removed = this.judgesService.removeCase(judge.id, caseId);
-    if (!removed) throw new NotFoundException(`Caso con id "${caseId}" no encontrado`);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  removeJudge(@Param('id') id: string) {
-    const removed = this.judgesService.removeJudge(Number(id));
-    if (!removed) throw new NotFoundException(`Juez con id ${id} no encontrado`);
   }
 }
