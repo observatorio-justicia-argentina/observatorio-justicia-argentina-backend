@@ -243,6 +243,44 @@ const MOCK_JUDGES: Judge[] = [
         description: 'Base normativa oficial del Estado Nacional. Legislación y jurisprudencia.',
       },
     ],
+    associations: [
+      {
+        name: 'Asociación de Magistrados y Funcionarios de la Justicia Nacional',
+        role: 'Miembro activo',
+        since: 2018,
+        sourceUrl: 'https://www.amfjn.org.ar/magistrados (FICTICIO)',
+      },
+    ],
+    appointmentDetail: {
+      politicalOrigin: 'judicial',
+      politicalOriginDetail:
+        'Trayectoria judicial ascendente sin antecedentes de militancia política partidaria registrada. (FICTICIO)',
+      politicalOriginSources: [
+        {
+          label: 'Ingresó al fuero como empleado judicial (2001)',
+          url: 'https://www.pjn.gov.ar/registros/empleados (FICTICIO)',
+        },
+        {
+          label: 'Accedió a la secretaría por concurso interno (2009)',
+          url: 'https://www.pjn.gov.ar/secretarios/concurso-2009 (FICTICIO)',
+        },
+        {
+          label: 'Concursó para juez — Concurso N° 312 del Consejo de la Magistratura (2017)',
+          url: 'https://www.magistratura.gov.ar/concursos/312 (FICTICIO)',
+        },
+      ],
+      magistraturaScore: 78.4,
+      magistraturaRank: 2,
+      magistraturaCompetitionId:
+        'Concurso N° 312 — Juzgado Nacional Criminal y Correccional (FICTICIO)',
+      magistraturaSourceUrl: 'https://www.magistratura.gov.ar/concursos/312 (FICTICIO)',
+      senateBackers: [
+        'Sen. Carlos Martínez (UCR — CABA) (FICTICIO)',
+        'Sen. Laura Rodríguez (PRO — Buenos Aires) (FICTICIO)',
+      ],
+      senateSession: '8 de febrero de 2018',
+      senateRecordUrl: 'https://www.senado.gob.ar/parlamentario/sesiones/2018-02-08 (FICTICIO)',
+    },
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -509,6 +547,50 @@ const MOCK_JUDGES: Judge[] = [
         description: 'Declaraciones juradas patrimoniales de magistrados provinciales.',
       },
     ],
+    associations: [
+      {
+        name: 'Justicia Legítima',
+        role: 'Firmante del acta fundacional',
+        since: 2012,
+        sourceUrl: 'https://www.justicia-legitima.org.ar/firmantes (FICTICIO)',
+      },
+      {
+        name: 'Asociación de Magistrados de la Provincia de Buenos Aires',
+        role: 'Miembro activa',
+        since: 2009,
+        sourceUrl: 'https://www.ampba.org.ar/socios (FICTICIO)',
+      },
+    ],
+    appointmentDetail: {
+      politicalOrigin: 'mixed',
+      politicalOriginDetail:
+        'Docente universitaria con carrera judicial propia, pero con aval político explícito del FPV en su designación en Cámara. (FICTICIO)',
+      politicalOriginSources: [
+        {
+          label: 'Docente de derecho penal en UBA y UNLP desde 2001 (FICTICIO)',
+          url: 'https://www.derecho.uba.ar/docentes (FICTICIO)',
+        },
+        {
+          label: 'Ingresó al PJ bonaerense como defensora pública (2006) (FICTICIO)',
+          url: 'https://www.mpba.gov.ar/defensores (FICTICIO)',
+        },
+        {
+          label: 'Figura en el acta fundacional de Justicia Legítima (2012) (FICTICIO)',
+          url: 'https://www.justicia-legitima.org.ar/firmantes (FICTICIO)',
+        },
+        {
+          label: 'Designación impulsada por el bloque FPV — Legislatura de Buenos Aires (FICTICIO)',
+          url: 'https://www.hcdiputados-ba.gov.ar/sesiones/2015 (FICTICIO)',
+        },
+      ],
+      magistraturaScore: 84.1,
+      magistraturaRank: 1,
+      magistraturaCompetitionId: 'Concurso CMCPBA N° 88 — Cámara Penal La Plata (FICTICIO)',
+      magistraturaSourceUrl: 'https://www.cmcpba.gov.ar/concursos/88 (FICTICIO)',
+      senateBackers: [],
+      senateSession: 'N/A — designación provincial (acuerdo de la Legislatura de Buenos Aires)',
+      senateRecordUrl: 'https://www.hcdiputados-ba.gov.ar/sesiones/2019-04-10 (FICTICIO)',
+    },
   },
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -766,34 +848,38 @@ const MOCK_JUDGES: Judge[] = [
         description:
           'Sistema de gestión judicial. Consulta de causas federales por número de expediente.',
       },
-      {
-        label: 'Consejo de la Magistratura — Legajo del magistrado',
-        url: 'https://www.magistratura.gov.ar/magistrados/legajo',
-        description: 'Legajo público: concurso de designación, antecedentes y declaración jurada.',
-      },
-      {
-        label: 'Ministerio Público Fiscal — Procuración General',
-        url: 'https://www.mpf.gov.ar',
-        description: 'Resoluciones y dictámenes del MPF en causas federales.',
-      },
-      {
-        label: 'UIF — Unidad de Información Financiera',
-        url: 'https://www.argentina.gob.ar/uif',
-        description:
-          'Reportes de operaciones sospechosas y resoluciones en causas de lavado de activos.',
-      },
-      {
-        label: 'AFIP — PROCELAC (Procuraduría de Criminalidad Económica)',
-        url: 'https://www.mpf.gov.ar/procelac',
-        description: 'Causas de evasión tributaria y delitos económicos en sede federal.',
-      },
-      {
-        label: 'SAIJ — Legislación y jurisprudencia federal',
-        url: 'https://www.saij.gob.ar',
-        description:
-          'Sistema Argentino de Información Jurídica. Base normativa y jurisprudencial oficial.',
-      },
     ],
+    associations: [],
+    appointmentDetail: {
+      politicalOrigin: 'political',
+      politicalOriginDetail:
+        'Sin trayectoria previa en el Poder Judicial. Abogado privado cuyo pliego fue impulsado por senadores del PJ cordobés. (FICTICIO)',
+      politicalOriginSources: [
+        {
+          label: 'Abogacía privada en Córdoba — sin cargo judicial previo (2005–2020) (FICTICIO)',
+          url: 'https://www.colegiodabogados-cba.org.ar/matriculados (FICTICIO)',
+        },
+        {
+          label: 'Pliego impulsado por Sen. Rodríguez Saá y Sen. Corpacci — PJ cordobés (FICTICIO)',
+          url: 'https://www.senado.gob.ar/parlamentario/plenarios/2020-08-19 (FICTICIO)',
+        },
+        {
+          label: 'Decreto PEN N° 884/2020 — Designación en Juzgado Federal de Córdoba (FICTICIO)',
+          url: 'https://www.boletinoficial.gov.ar/detalleAviso/primera/235678/20200922 (FICTICIO)',
+        },
+      ],
+      magistraturaScore: 61.7,
+      magistraturaRank: 3,
+      magistraturaCompetitionId: 'Concurso N° 198 — Juzgado Federal Penal Córdoba (FICTICIO)',
+      magistraturaSourceUrl: 'https://www.magistratura.gov.ar/concursos/198 (FICTICIO)',
+      senateBackers: [
+        'Sen. Héctor Olivares (PJ — Córdoba) (FICTICIO)',
+        'Sen. Graciela Montes (PJ — Córdoba) (FICTICIO)',
+        'Sen. Jorge Barrionuevo (FdT — Santa Fe) (FICTICIO)',
+      ],
+      senateSession: '3 de septiembre de 2015',
+      senateRecordUrl: 'https://www.senado.gob.ar/parlamentario/sesiones/2015-09-03 (FICTICIO)',
+    },
   },
 ];
 
