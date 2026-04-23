@@ -11,7 +11,7 @@ import {
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { Contact } from 'src/contacts/contacts.interface';
+import { Contact } from '../contacts/contacts.interface';
 
 const COOKIE_NAME = 'oja_token';
 const isProd = process.env.NODE_ENV === 'production';
